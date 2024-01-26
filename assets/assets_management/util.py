@@ -12,6 +12,7 @@ def retrieve_file_extension(file):
 def check_aggregation_value(v):
     return v["total"] if v["total"] else 0
 
+
 def calculate_expenses_totals(v1, v2):
     if v1 and v2:
         return v1 + v2
@@ -61,7 +62,8 @@ def consolidate(gex, aex, inc, year):
             "date": date(year, month + 1, 1),
             "income": inc[month]["total"],
             "expense": gex[month]["total"] + aex[month]["total"],
-            "balance": inc[month]["total"] - (gex[month]["total"] + aex[month]["total"])
+            "balance": inc[month]["total"]
+            - (gex[month]["total"] + aex[month]["total"]),
         }
         metadata["total_income"] += inc[month]["total"]
         metadata["total_expense"] += gex[month]["total"] + aex[month]["total"]

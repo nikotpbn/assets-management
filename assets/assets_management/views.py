@@ -11,11 +11,10 @@ from .util import (
     calculate_balance,
     check_aggregation_value,
 )
-from fpdf import FPDF
 
 import json
 import datetime
-import tempfile
+
 
 # Create your views here.
 def month_report(request, year, month):
@@ -86,7 +85,7 @@ def annual_report(request):
 
     if request.method == "POST":
         data = json.loads(request.body)
-        filename = create_annual_report_pdf(data['flow'], data['year'])
+        filename = create_annual_report_pdf(data["flow"], data["year"])
         return JsonResponse({"filename": filename})
 
     ctx = {
@@ -164,7 +163,7 @@ def asset_detail(request, pk=None):
             "asset": asset,
             "incomes": list(incomes.values("date", "value")),
             "expenses": list(expenses.values("date", "value")),
-            "income_total":tin,
+            "income_total": tin,
             "expense_total": tae,
             "liquid_total": bal,
             "start_date": start_date,

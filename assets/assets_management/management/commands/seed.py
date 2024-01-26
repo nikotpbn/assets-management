@@ -215,7 +215,10 @@ class Command(BaseCommand):
                     date="2023-09-22", value=81.46, description="Celpa", asset=garagem
                 ),
                 Expense(
-                    date="2023-12-22", value=5000, description="Documentação Escritura (mudança de nome)", asset=tres_de_maio
+                    date="2023-12-22",
+                    value=5000,
+                    description="Documentação Escritura (mudança de nome)",
+                    asset=tres_de_maio,
                 ),
             ]
         )

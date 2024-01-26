@@ -1,6 +1,9 @@
 services:
   web:
-    build: ./assets
+    build:
+      context: ./assets
+      args:
+        - DEV=true
     ports:
       - 8000:8000
     command: >
