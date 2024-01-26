@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  web:
+    build: ./assets
+    restart: always
+    expose:
+      - 8000
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+      python manage.py migrate &&
+      gunicorn assets.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - static-data:/app/static
+    secrets:
+      - db_schema_name
+      - db_user_name
+      - db_user_password
+      - aws_access_key
+      - aws_secret_key
+      - aws_bucket_name
+    environment:
+      DEBUG: 0
+      MYSQL_HOST: db
+      MYSQL_DATABASE: /run/secrets/db_schema_name
+      MYSQL_USER: /run/secrets/db_user_name
+      MYSQL_PASSWORD: /run/secrets/db_user_password
+      AWS_ACCESS_KEY: /run/secrets/aws_access_key
+      AWS_SECRET_KEY: /run/secrets/aws_secret_key
+      AWS_BUCKET_NAME: /run/secrets/aws_bucket_name
+    depends_on:
+      - db
+
+  proxy:
+    build: ./proxy
+    restart: always
+    ports:
+      - 80:80
+    depends_on:
+      - web
+    volumes:
+      - static-data:/static
+
+  db:
+    image: mysql:8.0
+    restart: always
+    secrets:
+      - db_root_password
+      - db_schema_name
+      - db_user_name
+      - db_user_password
+    volumes:
+      - asset-db-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db_root_password
+      - MYSQL_DATABASE_FILE=/run/secrets/db_schema_name
+      - MYSQL_USER_FILE=/run/secrets/db_user_name
+      - MYSQL_PASSWORD_FILE=/run/secrets/db_user_password
+    ports:
+      - 3306:3306
+
+volumes:
+  static-data:
+  asset-db-data:
+
+secrets:
+  db_root_password:
+    file: ./secrets/db/root_password.txt
+  db_schema_name:
+    file: ./secrets/db/schema_name.txt
+  db_user_name:
+    file: ./secrets/db/user_name.txt
+  db_user_password:
+    file: ./secrets/db/user_password.txt
+  aws_access_key:
+    file: ./secrets/aws/aws_access_key.txt
+  aws_bucket_name:
+    file: ./secrets/aws/aws_bucket_name.txt
+  aws_secret_key:
+    file: ./secrets/aws/aws_secret_key.txt

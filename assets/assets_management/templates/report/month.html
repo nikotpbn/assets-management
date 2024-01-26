@@ -1,0 +1,127 @@
+{% extends "asset_management_base.html" %}
+
+{% block content %}
+<div class="container d-flex justify-content-center px-4 py-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active"><a href="{% url 'annual-report'%}?year={{date.year}}">Relatório Anual</a></li>
+            <li class="breadcrumb-item" aria-current="page">{{date|date:"M"}} de {{date|date:"Y"}}</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container px-4">
+    <h2 class="pb-2 border-bottom">Resumo</h2>
+    <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-3">
+        <div class="col d-flex justify-content-center">
+            <div class="value-card">
+                <p><i class="bi bi-caret-up-fill" style="color: green; margin-right: 0.25rem;"></i>Entradas</p>
+                <p>R$ {{tin|floatformat:3|floatformat:"2g"}}</p>
+            </div>
+        </div>
+        <div class="col d-flex justify-content-center">
+            <div class="value-card">
+                <p><i class="bi bi-caret-down-fill" style="color: red; margin-right: 0.25rem;"></i>Saídas</p>
+                <p>R$ {{tex|floatformat:3|floatformat:"2g"}}</p>
+            </div>
+        </div>
+        <div class="col d-flex justify-content-center">
+            <div class="value-card">
+                <p><i class="bi bi-cash" style="margin-right: 0.25rem;"></i>Total</p>
+                <p>R$ {{bal|floatformat:3|floatformat:"2g"}}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container px-4">
+    <h2 class="pb-2 border-bottom">Entradas de Imóveis</h2>
+    {% if inc %}
+    <table class="table table-dark table-sm">
+        <thead>
+            <tr>
+                <th>Dia</th>
+                <th>Valor</th>
+                <th>Imóvel</th>
+            </tr>
+        </thead>
+
+        <tbody class="table-group-divider">
+            {% for income in inc %}
+            <tr>
+                <td>{{income.date|date:"d"}}</td>
+                <td>R$ {{income.value|floatformat:3|floatformat:"2g"}}</td>
+                <td>{{income.asset}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="d-flex text-center">
+        <p>Não existem entradas para o mês deste ano.</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="container px-4">
+    <h2 class="pb-2 border-bottom">Despesas de Imóveis</h2>
+    {% if aex %}
+    <table class="table table-dark table-sm">
+        <thead>
+            <tr>
+                <th>Dia</th>
+                <th>Valor</th>
+                <th>Descrição</th>
+                <th>Ver Documento</th>
+            </tr>
+        </thead>
+
+        <tbody class="table-group-divider">
+            {% for expense in aex %}
+            <tr>
+                <td>{{expense.date|date:"d"}}</td>
+                <td>R$ {{expense.value|floatformat:3|floatformat:"2g"}}</td>
+                <td>{{expense.description}}</td>
+                <td>{{expense.document}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="d-flex text-center">
+        <p>Não existem despesas para o mês deste ano.</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="container px-4">
+    <h2 class="pb-2 border-bottom">Despesas de Gerais</h2>
+    {% if gex %}
+    <table class="table table-dark table-sm">
+        <thead>
+            <tr>
+                <th>Dia</th>
+                <th>Valor</th>
+                <th>Descrição</th>
+                <th>Ver Documento</th>
+            </tr>
+        </thead>
+
+        <tbody class="table-group-divider">
+            {% for expense in gex %}
+            <tr>
+                <td>{{expense.date|date:"d"}}</td>
+                <td>R$ {{expense.value|floatformat:3|floatformat:"2g"}}</td>
+                <td>{{expense.description}}</td>
+                <td>{{expense.document}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="d-flex text-center">
+        <p>Não existem despesas para o mês deste ano.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

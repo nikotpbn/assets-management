@@ -1,0 +1,65 @@
+services:
+  web:
+    build: ./assets
+    ports:
+      - 8000:8000
+    command: >
+      sh -c "python manage.py wait_for_db &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./assets:/app
+    secrets:
+      - db_schema_name
+      - db_user_name
+      - db_user_password
+      - aws_access_key
+      - aws_secret_key
+      - aws_bucket_name
+    environment:
+      MYSQL_HOST: db
+      MYSQL_DATABASE: /run/secrets/db_schema_name
+      MYSQL_USER: /run/secrets/db_user_name
+      MYSQL_PASSWORD: /run/secrets/db_user_password
+      AWS_ACCESS_KEY: /run/secrets/aws_access_key
+      AWS_SECRET_KEY: /run/secrets/aws_secret_key
+      AWS_BUCKET_NAME: /run/secrets/aws_bucket_name
+      DEBUG: 1
+
+  db:
+    image: mysql:8.0
+    secrets:
+      - db_root_password
+      - db_schema_name
+      - db_user_name
+      - db_user_password
+    volumes:
+      - dev-asset-db-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db_root_password
+      - MYSQL_DATABASE_FILE=/run/secrets/db_schema_name
+      - MYSQL_USER_FILE=/run/secrets/db_user_name
+      - MYSQL_PASSWORD_FILE=/run/secrets/db_user_password
+    ports:
+      - 3306:3306
+
+
+volumes:
+  dev-asset-db-data:
+
+secrets:
+  db_root_password:
+    file: ./secrets/db/root_password.txt
+  db_schema_name:
+    file: ./secrets/db/schema_name.txt
+  db_user_name:
+    file: ./secrets/db/user_name.txt
+  db_user_password:
+    file: ./secrets/db/user_password.txt
+  aws_access_key:
+    file: ./secrets/aws/aws_access_key.txt
+  aws_bucket_name:
+    file: ./secrets/aws/aws_bucket_name.txt
+  aws_secret_key:
+    file: ./secrets/aws/aws_secret_key.txt
+
+

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container"
+    style="height: 100vh; display: flex; align-items: center; justify-content: center; flex-flow: column nowrap;">
+    <form action="{% url 'login' %}" method="POST">
+        {% csrf_token %}
+        <div class="form-floating">
+            <input type="email" name="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+            <label for="floatingInput">Email address</label>
+        </div>
+        <div class="form-floating">
+            <input type="password" name="password" class="form-control" id="floatingPassword" placeholder="Password">
+            <label for="floatingPassword">Password</label>
+        </div>
+        <button class="btn btn-primary w-100 py-2 mt-2" type="submit">Sign in</button>
+    </form>
+</div>
+
+{% endblock %}

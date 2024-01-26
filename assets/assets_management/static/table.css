@@ -1,0 +1,9 @@
+.value-card {
+    border: 1px solid white; 
+    border-radius: 0.5rem; 
+    padding: 1rem; 
+    margin: 1rem; 
+    background-color: #2b3035; 
+    min-width: 90%;
+    text-align: center;
+}
