@@ -1,7 +1,7 @@
 services:
   web:
     build:
-      context: ./assets
+      context: .
       args:
         - DEV=true
     ports:
