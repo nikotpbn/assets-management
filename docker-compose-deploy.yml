@@ -4,10 +4,8 @@ services:
   web:
     build: .
     restart: always
-    expose:
-      - 8000
     volumes:
-      - static-data:/app/static
+      - static-data:/assets/static
     secrets:
       - db_schema_name
       - db_user_name
@@ -32,10 +30,18 @@ services:
     restart: always
     ports:
       - 80:80
+      - 443:443
     depends_on:
       - web
     volumes:
       - static-data:/static
+      - ./certbot/www:/var/www/certbot:ro
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt:rw
+      - ./certbot/www:/var/www/certbot:rw
 
   db:
     image: mysql:8.0
