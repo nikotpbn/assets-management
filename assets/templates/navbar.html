@@ -1,45 +1,85 @@
 <nav class="navbar bg-dark navbar-expand-lg bg-body-tertiary">
   <div class="container-fluid">
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
-      aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNavDropdown"
+      aria-controls="navbarNavDropdown"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link {% if path == '/asset/list/' %} active {% endif %}" aria-current="page"
-            href="{% url 'asset-list' %}"><i class="bi bi-houses" style="margin-right: 2px;"></i>Imóveis</a>
+          <a
+            class="nav-link {% if path == '/asset/list/' %} active {% endif %}"
+            aria-current="page"
+            href="{% url 'asset-list' %}"
+            ><i class="bi bi-houses" style="margin-right: 2px"></i>Imóveis</a
+          >
         </li>
         <li class="nav-item">
-          <a class="nav-link {% if path == '/annual/report/' %} active {% endif %}" href="{% url 'annual-report' %}"><i
-              class="bi bi-file-text" style="margin-right: 2px;"></i>Relatório Anual</a>
+          <a
+            class="nav-link {% if path == '/annual/report/' %} active {% endif %}"
+            href="{% url 'annual-report' %}"
+            ><i class="bi bi-file-text" style="margin-right: 2px"></i>Relatório
+            Anual</a
+          >
         </li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a
+            class="nav-link dropdown-toggle"
+            href="#"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
             Gerenciamento
           </a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item disabled" href="#">Adicionar Entrada</a></li>
             <li>
-              <hr class="dropdown-divider">
+              <a class="dropdown-item disabled" href="#">Adicionar Entrada</a>
             </li>
-            <li><a class="dropdown-item disabled" href="#">Adicionar Despesa (Imóvel)</a></li>
-            <li><a class="dropdown-item disabled" href="#">Adicionar Despesa (Geral)</a></li>
             <li>
-              <hr class="dropdown-divider">
+              <hr class="dropdown-divider" />
             </li>
-            <li><a class="dropdown-item disabled" href="#">Adicionar Arquivo</a></li>
+            <li>
+              <a class="dropdown-item disabled" href="#"
+                >Adicionar Despesa (Imóvel)</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item disabled" href="#"
+                >Adicionar Despesa (Geral)</a
+              >
+            </li>
+            <li>
+              <hr class="dropdown-divider" />
+            </li>
+            <li>
+              <a class="dropdown-item disabled" href="#">Adicionar Arquivo</a>
+            </li>
           </ul>
         </li>
         <li>
           <div class="nav-logout-burguer">
-            <button type="button" class="btn btn-outline-danger">Logout</button>
+            <a
+              href="{% url 'logout' %}"
+              type="button"
+              class="btn btn-outline-danger"
+              >Logout</a
+            >
           </div>
         </li>
       </ul>
     </div>
     <div class="nav-logout">
-      <button type="button" class="btn btn-outline-danger">Logout</button>
+      <a href="{% url 'logout' %}" type="button" class="btn btn-outline-danger"
+        >Logout</a
+      >
     </div>
   </div>
 </nav>

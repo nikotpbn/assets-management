@@ -1,0 +1,11 @@
+.login-form {
+    height: 100vh;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+}
+
+.error-message {
+    color: #940000;
+}
