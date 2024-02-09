@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Sum
-from django.http import JsonResponse, StreamingHttpResponse, HttpResponse  # noqa
+from django.http import JsonResponse
 
 from .models import Asset, GeneralExpense, Expense, Income
 from .util import (
@@ -18,6 +18,9 @@ import datetime
 
 # Create your views here.
 def month_report(request, year, month):
+    if not request.user.is_authenticated:
+        return redirect("/login")
+
     general_expenses = GeneralExpense.objects.filter(date__year=year, date__month=month)
     assets_expenses = Expense.objects.filter(
         date__year=year, date__month=month
@@ -48,6 +51,9 @@ def month_report(request, year, month):
 
 
 def annual_report(request):
+    if not request.user.is_authenticated:
+        return redirect("/login")
+
     initial_year = 2022
     current_year = datetime.datetime.now().year
     year_options = [i for i in range(initial_year, current_year + 1)]
@@ -136,8 +142,7 @@ def asset_detail(request, pk=None):
     if request.method == "POST":
         start_year, start_month = request.POST.get("start", None).split("-")
         end_year, end_month = request.POST.get("end", None).split("-")
-        print(start_month)
-        print(end_month)
+
         start_date = datetime.date(int(start_year), int(start_month), 1)
         end_date = datetime.date(int(end_year), int(end_month), 1)
 
