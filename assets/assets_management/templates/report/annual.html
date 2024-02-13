@@ -93,13 +93,15 @@
                 d="M4 0h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2m.165 11.668c.09.18.23.343.438.419.207.075.412.04.58-.03.318-.13.635-.436.926-.786.333-.401.683-.927 1.021-1.51a11.64 11.64 0 0 1 1.997-.406c.3.383.61.713.91.95.28.22.603.403.934.417a.856.856 0 0 0 .51-.138c.155-.101.27-.247.354-.416.09-.181.145-.37.138-.563a.844.844 0 0 0-.2-.518c-.226-.27-.596-.4-.96-.465a5.76 5.76 0 0 0-1.335-.05 10.954 10.954 0 0 1-.98-1.686c.25-.66.437-1.284.52-1.794.036-.218.055-.426.048-.614a1.238 1.238 0 0 0-.127-.538.7.7 0 0 0-.477-.365c-.202-.043-.41 0-.601.077-.377.15-.576.47-.651.823-.073.34-.04.736.046 1.136.088.406.238.848.43 1.295a19.707 19.707 0 0 1-1.062 2.227 7.662 7.662 0 0 0-1.482.645c-.37.22-.699.48-.897.787-.21.326-.275.714-.08 1.103z" />
         </svg>
         <div>
-            <div style="display: flex; flex-flow: row nowrap; align-items: flex-end;">
+            <form target="_blank" style="display: flex; flex-flow: row nowrap; align-items: flex-end;" action="{% url 'annual-report' %}">
+                {% csrf_token %}
+                <input type="hidden" name="year" value="{{year}}">
+                <input type="hidden" name="pdf" value="download">
                 <h3 class="fw-bold mb-0 fs-4 text-body-emphasis">IRPF</h3>
-                <button class="btn" style="color: rgb(110,168,254);" id="pdf-button"
-                    data-url="{% url 'annual-report' %}" data-year="{{year}}" data-flow="{{monthly_json}}"
-                    target="_blank"><i class="bi bi-cloud-arrow-down"></i></button>
-            </div>
-
+                <button type="submit" class="btn" style="color: rgb(110,168,254);">
+                    <i class="bi bi-cloud-arrow-down"></i>
+                </button>
+            </form>
 
             <div class="d-flex justify-content-center" style="flex-flow: column nowrap;">
                 <p style="margin: 0">Documento Auxiliar</p>
@@ -124,26 +126,10 @@
         return cookieValue;
     }
 
-    const pdfButtonElement = document.getElementById("pdf-button");
     const yearSelectElement = document.getElementById("year");
     const yearFormElement = document.getElementById("year-form");
     yearSelectElement.addEventListener("change", event => {
-        const year = yearSelectElement.value;
         yearFormElement.submit();
-    });
-
-    pdfButtonElement.addEventListener("click", async event => {
-        const url = pdfButtonElement.dataset.url;
-        const year = pdfButtonElement.dataset.year;
-        const flow = JSON.parse(pdfButtonElement.dataset.flow);
-        const csrftoken = getCookie('csrftoken');
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'X-CSRFToken': csrftoken },
-            body: JSON.stringify({ year, flow })
-        });
-        const data = await response.json()
-        window.open(`http://localhost:8000/static/${data.filename}`, '_blank');
     });
 </script>
 {% endblock content %}

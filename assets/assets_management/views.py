@@ -1,15 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Sum
-from django.http import JsonResponse
+from django.http import FileResponse
 
 from .models import Asset, GeneralExpense, Expense, Income
 from .util import (
     fill_up_missing_months,
     consolidate,
-    create_annual_report_pdf,
     calculate_expenses_totals,
     calculate_balance,
     check_aggregation_value,
+    generate_annual_report_pdf,
 )
 
 import json
@@ -59,6 +59,7 @@ def annual_report(request):
     year_options = [i for i in range(initial_year, current_year + 1)]
 
     year_filter = request.GET.get("year" or None)
+    pdf_download = request.GET.get("pdf" or None)
     if year_filter:
         current_year = int(year_filter)
 
@@ -89,10 +90,9 @@ def annual_report(request):
 
     consolidated_data, metadata = consolidate(gex, aex, inc, current_year)
 
-    if request.method == "POST":
-        data = json.loads(request.body)
-        filename = create_annual_report_pdf(data["flow"], data["year"])
-        return JsonResponse({"filename": filename})
+    if pdf_download:
+        buffer = generate_annual_report_pdf(consolidated_data, current_year, metadata)
+        return FileResponse(buffer, filename="hello.pdf")
 
     ctx = {
         "year_options": year_options,

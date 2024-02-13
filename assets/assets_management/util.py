@@ -1,8 +1,11 @@
+import io, os
 from datetime import date
-import os
-from decimal import Decimal
 
-from fpdf import FPDF  # https://pyfpdf.readthedocs.io/en/latest/index.html
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus.tables import Table, TableStyle
+from reportlab.lib import colors
+from reportlab.lib.units import inch
 
 
 def retrieve_file_extension(file):
@@ -72,39 +75,53 @@ def consolidate(gex, aex, inc, year):
     return consolidated, metadata
 
 
-def create_annual_report_pdf(data, year):
-    filename = f"AUXILIAR_IRPF_{year}.pdf"
+def generate_annual_report_pdf(data, current_year, metadata):
+    image = f"{os.getcwd()}/assets_management/static/replacements/irpf.jpg"
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+    p.setFillColorRGB(0, 0, 102/256)
 
-    pdf = FPDF(orientation="P", format="A4")
-    pdf.add_page()
-    image_path = f"{os.getcwd()}/assets_management/static/replacements/irpf.jpg"
-    pdf.image(image_path, 75, 0, 45, 30)
-    pdf.ln(15)
+    p.drawImage(image, width / 2 - 100, height - 100, width=200, height=100)
+    p.drawString(width / 2 - 55, height - 100, f"Documento Auxiliar {current_year}")
 
-    pdf.set_text_color(0, 0, 77)
-    pdf.set_font("Arial", "B", 15)
-    pdf.cell(180, 10, "Documento Auxiliar", 0, 1, "C")
-    pdf.cell(180, 10, f"{year}", 0, 1, "C")
-    pdf.ln(13)
+    HEADERS = ["Mês", "Entrada", "Saída", "Balanço"]
 
-    pdf.set_font("Arial", "B", 14)
-    pdf.set_left_margin(15)
-    pdf.set_right_margin(15)
+    COLS_WIDTH = [1.2*inch / 2, 1.2 * inch, 1.2 * inch, 1.2 * inch]
+    TABLE_LENGTH = inch / 2 + 1.2 * inch + 1.2 * inch + 1.2 * inch
 
-    pdf.cell(60, 10, "Mês", 1)
-    pdf.cell(60, 10, "Entrada", 1)
-    pdf.cell(60, 10, "Saída", 1)
-    pdf.set_font("Arial", "", 12)
-    pdf.ln("20")
+    TOTALS = ['Totais', f'R$ {metadata['total_income']:,}', f'R$ {metadata['total_expense']:,}', f'R$ {metadata['balance']:,}']
 
+    m = []
+    m.append(HEADERS)
     for key, value in data.items():
-        year, month, day = value["date"].split("-")
-        month = date(int(year), int(month), int(day))
-        pdf.cell(60, 10, month.strftime("%b"), 1)
-        pdf.cell(60, 10, "R$ {:,.2f}".format(Decimal(value["income"])), 1)
-        pdf.cell(60, 10, "R$ {:,.2f}".format(Decimal(value["expense"])), 1)
-        pdf.ln("20")
+        row = None
+        balance = f'R$ {value["income"] - value["expense"]:,}'
+        row = [
+            value["date"].strftime("%b"),
+            f'R$ {value["income"]:,}',
+            f'R$ {value["expense"]:,}',
+            balance,
+        ]
+        m.append(row)
+    m.append(TOTALS)
 
-    pdf.output(f"staticfiles/{filename}", "F")
+    t = Table(m, colWidths=COLS_WIDTH)
+    t.setStyle(
+        TableStyle(
+            [
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTNAME", (0, -1), (-1, -1), "Helvetica-Bold"),
+                ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.black),
+                ("BOX", (0, 0), (-1, -1), 0.25, colors.black),
+            ]
+        )
+    )
+    t.wrapOn(p, width / 2, height / 2)
+    t.drawOn(p, (width-TABLE_LENGTH) / 2, height - 400)
 
-    return filename
+    p.showPage()
+    p.save()
+    buffer.seek(0)
+
+    return buffer
