@@ -18,6 +18,11 @@ def contract_directory_path(instance, filename):
     return f"{instance.asset.id}/contract/{uuid.uuid4()}.{ext}"
 
 
+def asset_income_directory_path(instance, filename):
+    ext = filename.split(".")[-1].lower()
+    return f"{instance.asset.id}/income/{uuid.uuid4()}.{ext}"
+
+
 def asset_expense_directory_path(instance, filename):
     ext = filename.split(".")[-1].lower()
     return f"{instance.asset.id}/expense/{uuid.uuid4()}.{ext}"
@@ -94,6 +99,9 @@ class Income(models.Model):
     date = models.DateField()
     value = models.DecimalField(max_digits=9, decimal_places=2)
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE, related_name="incomes")
+    document = models.FileField(
+        null=True, blank=True, upload_to=asset_income_directory_path
+    )
 
     def __str__(self):
         return f"{self.asset.name}-{self.date} - {self.value}"

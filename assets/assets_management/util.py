@@ -1,11 +1,12 @@
-import io, os
+import io
+import os
 from datetime import date
 
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import inch
 from reportlab.platypus.tables import Table, TableStyle
 from reportlab.lib import colors
-from reportlab.lib.units import inch
 
 
 def retrieve_file_extension(file):
@@ -90,7 +91,12 @@ def generate_annual_report_pdf(data, current_year, metadata):
     COLS_WIDTH = [1.2*inch / 2, 1.2 * inch, 1.2 * inch, 1.2 * inch]
     TABLE_LENGTH = inch / 2 + 1.2 * inch + 1.2 * inch + 1.2 * inch
 
-    TOTALS = ['Totais', f'R$ {metadata['total_income']:,}', f'R$ {metadata['total_expense']:,}', f'R$ {metadata['balance']:,}']
+    TOTALS = [
+        'Totais',
+        f'R$ {metadata['total_income']:,}',
+        f'R$ {metadata['total_expense']:,}',
+        f'R$ {metadata['balance']:,}'
+    ]
 
     m = []
     m.append(HEADERS)
