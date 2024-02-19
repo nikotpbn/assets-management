@@ -78,13 +78,14 @@ def consolidate(gex, aex, inc, year):
 
 def generate_annual_report_pdf(data, current_year, metadata):
     image = f"{os.getcwd()}/assets_management/static/replacements/irpf.jpg"
+    filename = f"Documento Auxiliar {current_year}"
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
     p.setFillColorRGB(0, 0, 102/256)
 
     p.drawImage(image, width / 2 - 100, height - 100, width=200, height=100)
-    p.drawString(width / 2 - 55, height - 100, f"Documento Auxiliar {current_year}")
+    p.drawString(width / 2 - 55, height - 100, filename)
 
     HEADERS = ["Mês", "Entrada", "Saída", "Balanço"]
 
@@ -130,4 +131,4 @@ def generate_annual_report_pdf(data, current_year, metadata):
     p.save()
     buffer.seek(0)
 
-    return buffer
+    return buffer, filename

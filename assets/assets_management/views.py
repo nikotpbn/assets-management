@@ -91,8 +91,11 @@ def annual_report(request):
     consolidated_data, metadata = consolidate(gex, aex, inc, current_year)
 
     if pdf_download:
-        buffer = generate_annual_report_pdf(consolidated_data, current_year, metadata)
-        return FileResponse(buffer, filename="hello.pdf")
+        buffer, filename = generate_annual_report_pdf(
+            consolidated_data, current_year, metadata
+        )
+        print(filename)
+        return FileResponse(buffer, filename=f"{filename}.pdf")
 
     ctx = {
         "year_options": year_options,
@@ -116,11 +119,12 @@ def asset_list(request):
     return render(request, "asset/list.html", ctx)
 
 
-def asset_detail(request, pk=None):
+def asset_detail(request, slug=None):
     if not request.user.is_authenticated:
         return redirect("/login")
 
-    asset = get_object_or_404(Asset, pk=pk)
+    pdf_download = request.GET.get("pdf" or None)
+    asset = get_object_or_404(Asset, slug=slug)
     current_year = datetime.datetime.now().year
     incomes = asset.incomes.filter(date__year=current_year).order_by("date")
     expenses = asset.expenses.filter(date__year=current_year).order_by("date")
@@ -128,6 +132,12 @@ def asset_detail(request, pk=None):
     end_date = f"{datetime.datetime.now().year}-{datetime.datetime.now().month:02d}"
     latest_contract = asset.contracts.filter(end__isnull=True)
     latest_tenant = asset.tenants.filter(is_current=True)
+
+    if pdf_download:
+        return FileResponse(
+            latest_contract[0].file, filename=f"Contrato {asset.name}.pdf"
+        )
+
     archives = [
         {
             "id": archive.id,

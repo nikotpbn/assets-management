@@ -52,6 +52,7 @@ class Asset(models.Model):
     name = models.CharField(max_length=128)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
     cover = models.ImageField(null=True, blank=True, upload_to=asset_directory_path)
+    slug = models.SlugField(null=True, blank=True)
 
     def __str__(self):
         return self.name

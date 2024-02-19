@@ -24,10 +24,10 @@
     <div class="row row-cols-1 row-cols-lg-3 align-items-stretch g-4 py-5">
         {% for asset in assets %}
         <div class="col">
-            <a class="card-link" href="{% url 'asset-detail' asset.id %}">
+            <a class="card-link" href="{% url 'asset-detail' asset.slug %}">
                 <div class="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg"
                     {% if asset.cover %}  style="background-image: url('{{asset.cover.url}}');"
-                    {% else %}  
+                    {% else %}
                     style="background-image: url('/static/replacements/house-fill.svg');"
                     {% endif %}>
                     <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
