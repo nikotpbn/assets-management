@@ -180,7 +180,7 @@
           <form
             target="_blank"
             style="display: flex; flex-flow: row nowrap; align-items: flex-end"
-            action="{% url 'asset-detail' asset.pk %}"
+            action="{% url 'asset-detail' asset.slug %}"
           >
             {% csrf_token %}
             <input type="hidden" name="pdf" value="download" />
