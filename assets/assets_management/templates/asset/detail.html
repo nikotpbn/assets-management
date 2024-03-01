@@ -13,7 +13,7 @@
 <div class="container px-4 py-5">
   <div class="value-card">
     <legend>Período</legend>
-    <form action="{% url 'asset-detail' asset.id %}" method="POST">
+    <form action="{% url 'asset-detail' asset.slug %}" method="POST">
       {% csrf_token %}
       <input
         name="start"
