@@ -38,6 +38,11 @@ def asset_directory_path(instance, filename):
     return f"{instance.asset.id}/cover/{uuid.uuid4()}.{ext}"
 
 
+def deed_directory_path(instance, filename):
+    ext = filename.split(".")[-1].lower()
+    return f"{instance.asset.id}/deed/{uuid.uuid4()}.{ext}"
+
+
 # Create your models here.
 class Address(models.Model):
     street = models.CharField(max_length=128)
@@ -54,6 +59,9 @@ class Asset(models.Model):
     cover = models.ImageField(null=True, blank=True, upload_to=asset_directory_path)
     slug = models.SlugField(null=True, blank=True)
 
+    def year_tax_deductible_expenses(self, year):
+        return self.expenses.filter(date__year=year, tax_deductible=True)
+
     def __str__(self):
         return self.name
 
@@ -62,8 +70,13 @@ class Tenant(models.Model):
     name = models.CharField(max_length=128)
     email = models.EmailField()
     phone = models.CharField(max_length=11)
+    is_company = models.BooleanField(default=False)
+    registration_number = models.CharField(max_length=20, default="777.777.777-77")
     is_current = models.BooleanField(default=True)
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE, related_name="tenants")
+
+    def __str__(self):
+        return f"{self.name} - {self.asset.name}"
 
 
 class Contract(models.Model):
@@ -77,14 +90,28 @@ class Contract(models.Model):
         return f"{self.start} - {self.end}"
 
 
+class Deed(models.Model):
+    asset = models.OneToOneField(
+        Asset,
+        on_delete=models.CASCADE,
+        related_name="deed",
+        primary_key=True,
+    )
+    file = models.FileField(blank=True, null=True, upload_to=deed_directory_path)
+
+
 class Expense(models.Model):
     date = models.DateField()
     value = models.DecimalField(max_digits=9, decimal_places=2)
     description = models.CharField(max_length=255, null=True)
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE, related_name="expenses")
+    tax_deductible = models.BooleanField(default=False)
     document = models.FileField(
         null=True, blank=True, upload_to=asset_expense_directory_path
     )
+
+    def __str__(self):
+        return f"{self.asset} - {self.date}"
 
 
 class GeneralExpense(models.Model):

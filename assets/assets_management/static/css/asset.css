@@ -1,0 +1,34 @@
+.value-card {
+    border: 1px solid white;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin: 1rem;
+    background-color: #2b3035;
+    min-width: 90%;
+    text-align: center;
+}
+
+.info-element {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+}
+
+.annual-report__table--button {
+    border: 1px solid antiquewhite;
+    width: 50%
+}
+
+.annual-report__table--button:hover{
+    background: antiquewhite;
+    color: #212529;
+}
+
+.annual-table__container {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: left;
+}
+

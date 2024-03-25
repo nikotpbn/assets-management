@@ -9,7 +9,7 @@ from .util import (
     calculate_expenses_totals,
     calculate_balance,
     check_aggregation_value,
-    generate_annual_report_pdf,
+    customPdf,
 )
 
 import json
@@ -59,7 +59,9 @@ def annual_report(request):
     year_options = [i for i in range(initial_year, current_year + 1)]
 
     year_filter = request.GET.get("year" or None)
-    pdf_download = request.GET.get("pdf" or None)
+    if not year_filter and request.method == 'POST':
+        year_filter = request.POST.get("year" or None)
+
     if year_filter:
         current_year = int(year_filter)
 
@@ -90,12 +92,13 @@ def annual_report(request):
 
     consolidated_data, metadata = consolidate(gex, aex, inc, current_year)
 
-    if pdf_download:
-        buffer, filename = generate_annual_report_pdf(
-            consolidated_data, current_year, metadata
+    if request.method == 'POST':
+        ardex_qs = Expense.objects.filter(date__year=current_year, tax_deductible=True)
+        ardex = fill_up_missing_months(
+            ardex_qs.values("date__month").annotate(total=Sum("value")).order_by()
         )
-        print(filename)
-        return FileResponse(buffer, filename=f"{filename}.pdf")
+        pdf = customPdf(inc, ardex, ardex_qs, current_year)
+        return FileResponse(pdf.build(), filename="file.pdf")
 
     ctx = {
         "year_options": year_options,
@@ -123,7 +126,6 @@ def asset_detail(request, slug=None):
     if not request.user.is_authenticated:
         return redirect("/login")
 
-    pdf_download = request.GET.get("pdf" or None)
     asset = get_object_or_404(Asset, slug=slug)
     current_year = datetime.datetime.now().year
     incomes = asset.incomes.filter(date__year=current_year).order_by("date")
@@ -132,11 +134,7 @@ def asset_detail(request, slug=None):
     end_date = f"{datetime.datetime.now().year}-{datetime.datetime.now().month:02d}"
     latest_contract = asset.contracts.filter(end__isnull=True)
     latest_tenant = asset.tenants.filter(is_current=True)
-
-    if pdf_download:
-        return FileResponse(
-            latest_contract[0].file, filename=f"Contrato {asset.name}.pdf"
-        )
+    deed = hasattr(asset, "deed")
 
     archives = [
         {
@@ -183,10 +181,28 @@ def asset_detail(request, slug=None):
             "liquid_total": bal,
             "start_date": start_date,
             "end_date": end_date,
-            "contract": latest_contract[0] if len(latest_contract) > 0 else None,
+            "contract": True if len(latest_contract) > 0 else None,
+            "deed": asset.deed if deed else None,
             "tenant": latest_tenant[0] if len(latest_tenant) > 0 else None,
             "archives": json.dumps(archives),
             "archives_qs": archives,
             "path": "/asset/detail/",
         },
     )
+
+
+def asset_contract(request, slug):
+    if not request.user.is_authenticated:
+        return redirect("/login")
+
+    asset = get_object_or_404(Asset, slug=slug)
+    latest_contract = asset.contracts.filter(end__isnull=True)
+    return FileResponse(latest_contract[0].file, filename=f"Contrato {asset.name}.pdf")
+
+
+def asset_deed(request, slug):
+    if not request.user.is_authenticated:
+        return redirect("/login")
+
+    asset = get_object_or_404(Asset, slug=slug)
+    return FileResponse(asset.deed.file, filename=f"Contrato {asset.name}.pdf")

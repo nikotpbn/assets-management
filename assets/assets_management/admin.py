@@ -4,6 +4,7 @@ from assets_management.models import (
     Address,
     Asset,
     Contract,
+    Deed,
     Expense,
     GeneralExpense,
     Income,
@@ -16,6 +17,7 @@ admin.site.register(Tenant)
 admin.site.register(Address)
 admin.site.register(Asset)
 admin.site.register(Contract)
+admin.site.register(Deed)
 admin.site.register(Expense)
 admin.site.register(GeneralExpense)
 admin.site.register(Income)

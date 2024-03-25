@@ -72,6 +72,7 @@
                 <th>Dia</th>
                 <th>Valor</th>
                 <th>Descrição</th>
+                <th>Imóvel</th>
                 <th>Ver Documento</th>
             </tr>
         </thead>
@@ -82,6 +83,7 @@
                 <td>{{expense.date|date:"d"}}</td>
                 <td>R$ {{expense.value|floatformat:3|floatformat:"2g"}}</td>
                 <td>{{expense.description}}</td>
+                <td>{{expense.asset.name}}</td>
                 <td>{{expense.document}}</td>
             </tr>
             {% endfor %}
