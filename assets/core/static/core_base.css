@@ -9,3 +9,11 @@
 .error-message {
     color: #940000;
 }
+
+.error {
+    color: #940000;
+}
+
+.input-error {
+    border-color: #940000;
+}

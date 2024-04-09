@@ -28,10 +28,11 @@
       />
       <label for="floatingPassword">Senha</label>
     </div>
-    <button class="btn btn-primary w-100 py-2 mt-2" type="submit">
+    <button class="btn btn-light btn-sm w-100 py-2 mt-2" type="submit">
       Entrar
     </button>
   </form>
+  <a href="{% url 'password-recover' %}">Recuperar senha</a>
 </div>
 
 {% endblock %}
