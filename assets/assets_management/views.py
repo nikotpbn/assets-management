@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Sum
 from django.http import FileResponse
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.files.base import ContentFile
 
-from .models import Asset, GeneralExpense, Expense, Income
+from .models import Asset, GeneralExpense, Expense, Income, Report
 from .util import (
     fill_up_missing_months,
     consolidate,
@@ -16,7 +18,6 @@ import json
 import datetime
 
 
-# Create your views here.
 def month_report(request, year, month):
     if not request.user.is_authenticated:
         return redirect("/login")
@@ -59,11 +60,20 @@ def annual_report(request):
     year_options = [i for i in range(initial_year, current_year + 1)]
 
     year_filter = request.GET.get("year" or None)
-    if not year_filter and request.method == 'POST':
+    if not year_filter and request.method == "POST":
         year_filter = request.POST.get("year" or None)
 
     if year_filter:
         current_year = int(year_filter)
+
+    try:
+        report = Report.objects.get(year=current_year)
+        if request.method == "POST":
+            pdf_download = request.POST.get("pdf_download", None)
+            if pdf_download:
+                return FileResponse(report.file, filename="file.pdf")
+    except ObjectDoesNotExist:
+        report = None
 
     general_expenses_qs = (
         GeneralExpense.objects.filter(date__year=current_year)
@@ -92,15 +102,31 @@ def annual_report(request):
 
     consolidated_data, metadata = consolidate(gex, aex, inc, current_year)
 
-    if request.method == 'POST':
-        ardex_qs = Expense.objects.filter(date__year=current_year, tax_deductible=True)
-        ardex = fill_up_missing_months(
-            ardex_qs.values("date__month").annotate(total=Sum("value")).order_by()
-        )
-        pdf = customPdf(inc, ardex, ardex_qs, current_year)
-        return FileResponse(pdf.build(), filename="file.pdf")
+    if request.method == "POST":
+        try:
+            ardex_qs = Expense.objects.filter(
+                date__year=current_year, tax_deductible=True
+            )
+            ardex = fill_up_missing_months(
+                ardex_qs.values("date__month").annotate(total=Sum("value")).order_by()
+            )
+            pdf_obj = customPdf(inc, ardex, ardex_qs, current_year)
+            buffer = pdf_obj.build()
+            pdf = buffer.getvalue()
+            pdf_file = ContentFile(pdf)
+            pdf_file.name = f"Relatório Anual {current_year}.pdf"
+
+            if report:
+                report.file.delete()
+                report.file = pdf_file
+                report.save()
+            else:
+                report = Report.objects.create(year=current_year, file=pdf_file)
+        except Exception as e:
+            print(f"Algo de errado aconteceu: {e}")
 
     ctx = {
+        "report": report,
         "year_options": year_options,
         "year": current_year,
         "metadata": metadata,
@@ -127,6 +153,7 @@ def asset_detail(request, slug=None):
         return redirect("/login")
 
     asset = get_object_or_404(Asset, slug=slug)
+    consumer_unities = asset.unities.all()
     current_year = datetime.datetime.now().year
     incomes = asset.incomes.filter(date__year=current_year).order_by("date")
     expenses = asset.expenses.filter(date__year=current_year).order_by("date")
@@ -174,6 +201,7 @@ def asset_detail(request, slug=None):
         "asset/detail.html",
         {
             "asset": asset,
+            "consumer_unities": consumer_unities,
             "incomes": list(incomes.values("date", "value")),
             "expenses": list(expenses.values("date", "value")),
             "income_total": tin,
@@ -206,3 +234,19 @@ def asset_deed(request, slug):
 
     asset = get_object_or_404(Asset, slug=slug)
     return FileResponse(asset.deed.file, filename=f"Contrato {asset.name}.pdf")
+
+
+def create_report(request):
+    if not request.user.is_authenticated:
+        return redirect("/login")
+
+    initial_year = 2022
+    current_year = datetime.datetime.now().year
+    year_options = [i for i in range(initial_year, current_year + 1)]
+
+    ctx = {
+        "year_options": year_options,
+        "year": current_year,
+    }
+
+    return render(request, "report/create.html", ctx)

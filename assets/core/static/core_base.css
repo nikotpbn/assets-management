@@ -17,3 +17,11 @@
 .input-error {
     border-color: #940000;
 }
+
+a {
+    color: #f8f9fa;
+}
+
+a:hover {
+    color: #d3d4d5
+}

@@ -9,6 +9,8 @@ from assets_management.models import (
     GeneralExpense,
     Income,
     Archive,
+    Report,
+    ConsumerUnity
 )
 
 
@@ -22,3 +24,5 @@ admin.site.register(Expense)
 admin.site.register(GeneralExpense)
 admin.site.register(Income)
 admin.site.register(Archive)
+admin.site.register(Report)
+admin.site.register(ConsumerUnity)

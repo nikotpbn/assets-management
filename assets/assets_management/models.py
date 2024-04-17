@@ -43,7 +43,16 @@ def deed_directory_path(instance, filename):
     return f"{instance.asset.id}/deed/{uuid.uuid4()}.{ext}"
 
 
+def report_directory_path(instance, filename):
+    return f"report/{filename}"
+
+
 # Create your models here.
+class Report(models.Model):
+    year = models.IntegerField()
+    file = models.FileField(blank=True, null=True, upload_to=report_directory_path)
+
+
 class Address(models.Model):
     street = models.CharField(max_length=128)
     number = models.IntegerField()
@@ -156,3 +165,18 @@ class Archive(models.Model):
     @property
     def filename(self):
         return self.file.name
+
+
+class ConsumerUnity(models.Model):
+    class Meta:
+        unique_together = ["asset", "source"]
+
+    SOURCE_CHOICES = {
+        ("E", "energia"),
+        ("W", "água"),
+        ("G", "gás"),
+    }
+
+    asset = models.ForeignKey(Asset, on_delete=models.CASCADE, related_name="unities")
+    source = models.CharField(max_length=16, choices=SOURCE_CHOICES)
+    number = models.CharField(max_length=255)
