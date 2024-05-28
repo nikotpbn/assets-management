@@ -1,0 +1,115 @@
+.management-container {
+  display: flex;
+  flex-flow: row nowrap;
+  height: 100vh;
+}
+
+.custom-input {
+  background-color: #212529;
+  border: 0;
+  text-align: center;
+}
+
+.sidebar {
+  width: 10%;
+  border-right: 1px solid antiquewhite;
+}
+
+.sidebar-list {
+  list-style-type: none;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-list__link {
+  display: flex;
+  width: 100%;
+  padding-top: 1.5rem;
+  padding-bottom: 1rem;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.65);
+  justify-content: center;
+  border-bottom: 1px solid antiquewhite;
+}
+
+.sidebar-list__link:hover > .sidebar-list__element {
+  color: white;
+}
+
+.management-content {
+  width: 100%;
+}
+
+.management-card {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  border: 1px solid antiquewhite;
+  border-radius: 5px;
+  padding: 1rem;
+}
+
+.card-link {
+  text-decoration: none;
+  color: antiquewhite;
+}
+
+.custom-card-pills {
+  display: flex;
+  flex-flow: row, nowrap;
+  justify-content: space-around;
+}
+
+.btn-custom {
+  border: 1px solid antiquewhite;
+  border-radius: 5px;
+}
+
+.btn-custom:hover,
+.btn-custom.active {
+  border: 1px solid antiquewhite;
+  color: #212529;
+  background-color: white;
+}
+
+.btn-custom-water {
+  border: 1px solid rgb(51, 153, 255);
+  color: rgb(51, 153, 255);
+}
+
+.btn-custom-water:hover,
+.btn-custom-water.active {
+  border: 1px solid rgb(51, 153, 255);
+  color: white;
+  background-color: rgb(51, 153, 255);
+}
+
+.btn-custom-energy {
+  border: 1px solid #CCCC00;
+  color: #CCCC00;
+}
+
+.btn-custom-energy:hover,
+.btn-custom-energy.active {
+  border: 1px solid #CCCC00;
+  color: white;
+  background-color: #CCCC00;
+}
+
+.btn-custom-gas {
+  border: 1px solid #dc3545;
+  color: #dc3545;
+}
+
+.btn-custom-gas:hover,
+.btn-custom-gas.active {
+  border: 1px solid #dc3545;
+  color: white;
+  background-color: #dc3545;
+}

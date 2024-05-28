@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static '/css/management.css' %}">
+{% endblock %}
+
+
+{% block header %}
+    {% include "navbar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="management-container">
+    {% include "sidebar.html" %}
+    <div class="management-content">
+        {% block subcontent %}
+        {% endblock subcontent %}
+    </div>
+</div>
+{% endblock content %}

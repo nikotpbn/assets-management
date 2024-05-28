@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "storages",
     "core",
     "assets_management",
+    "management",
 ]
 
 MIDDLEWARE = [
