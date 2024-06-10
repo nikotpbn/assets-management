@@ -1,4 +1,5 @@
 import { getCookie, sendRequest } from "/static/js/util.js";
+import { displayToastCustomMessage } from "/static/js/flow.js";
 
 let selectedConsumerUnity = "W";
 let selectedConsumerunityElement = null;
@@ -82,7 +83,6 @@ const editButtonIconHandler = async () => {
     );
 
     if (unityElement.number != newUnityNumber) {
-
       try {
         let response = await sendRequest(
           editUnitButtonElement.dataset.url,
@@ -96,8 +96,7 @@ const editButtonIconHandler = async () => {
         );
 
         unityElement.number = newUnityNumber;
-
-
+        displayToastCustomMessage(response.message, response.status);
       } catch (error) {
         console.log(error.message);
       }
@@ -145,8 +144,21 @@ const updateAsset = async () => {
       { asset_id: assetSelectElement.value }
     );
     let unities = await JSON.parse(response.unities);
+
+    const labels = ["W", "E", "G"];
+    if (unities.length === 0) {
+      labels.forEach((label) => unities.push({ source: label, number: "" }));
+    } else {
+      labels.forEach((label) => {
+        let exists = unities.find((unity) => unity.source === label);
+        if (!exists) {
+          unities.push({ source: label, number: "" });
+        }
+      });
+    }
     asset.id = assetSelectElement.value;
     asset.unities = unities;
+
   } catch (error) {
     console.log(error.message);
   }

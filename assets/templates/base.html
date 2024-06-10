@@ -28,5 +28,23 @@
   <body class="--bs-body-bg">
     <header>{% block header %} {% endblock %}</header>
     <main>{% block content %} {% endblock %}</main>
+    <div
+    id="liveToast"
+    class="toast align-items-center text-bg-success"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    style="position: sticky; z-index: 10; left: 100vw; bottom: 0px;"
+    >
+        <div class="d-flex">
+            <div class="toast-body">Hello, world! This is a toast message.</div>
+            <button
+                type="button"
+                class="btn-close btn-close-white me-2 m-auto"
+                data-bs-dismiss="toast"
+                aria-label="Close"
+            ></button>
+        </div>
+    </div>
   </body>
 </html>

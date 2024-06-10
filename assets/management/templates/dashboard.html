@@ -1,6 +1,10 @@
 {% extends "management_base.html" %}
-
+{% load static %}
 
 {% block subcontent %}
-Dashboard
+<div class="annual-income" data-labels="{{labels}}" data-data="{{data}} ">
+  <canvas id="myChart"></canvas>
+</div>
+
+<script type="module" src="{% static 'js/dashboard.js' %}"></script>
 {% endblock subcontent %}

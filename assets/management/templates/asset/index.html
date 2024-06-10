@@ -1,9 +1,9 @@
 {% extends "management_base.html" %} {% load static %} {% block subcontent %}
 <div class="container">
   <div class="py-5">
-    <div class="card border-light">
+    <div class="card">
       <div class="card-header" style="text-align: center">
-        Selecione o Imóvel
+        Imóvel
       </div>
       <div class="card-body">
         <select
@@ -22,86 +22,172 @@
     </div>
   </div>
 
-  <div class="row row-cols-1 row-cols-2 row-cols-md-2 g-4 mb-5">
-    <div class="col">
-      <a class="card-link" href="">
-        <div class="management-card">
-          Entrada
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="5rem"
-            height="5rem"
-            fill="#198754"
-            class="bi bi-geo-alt text-body-secondary flex-shrink-0"
-            viewBox="0 0 16 16"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm8.5 9.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707z"
-            />
-          </svg>
-        </div>
-      </a>
-    </div>
+  <div class="pb-5">
+    <div class="card">
+      <div class="card-header" style="text-align: center">Fluxo</div>
+      <div class="card-body">
+        <form action="" method="POST">
+          {% csrf_token %}
+          <input
+            id = "flow-date-input"
+            name="date"
+            class="form-control mb-2"
+            type="date"
+            value="{{start_date}}"
+          />
 
-    <div class="col">
-      <a class="card-link" href="">
-        <div class="management-card">
-          Saída
-          <div id="expense-icon">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="5rem"
-              height="5rem"
-              fill="#dc3545"
-              class="bi bi-geo-alt text-body-secondary flex-shrink-0"
-              viewBox="0 0 16 16"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm8.5 2.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293z"
-              />
-            </svg>
+          <div class="input-group mb-3">
+            <span class="input-group-text">R$</span>
+            <input id="flow-value-input" type="text" value="0,00" class="form-control" aria-label="Amount (to the nearest dollar)">
+          </div>
+
+          <div style="display: flex; justify-content: space-between; padding-bottom: 10px;">
+            <button id="income-button" type="button" class="btn btn-outline-success" data-url="{% url 'management:asset-income-create' %}" style="width: 45%">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-arrow-down-square"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm8.5 2.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293z"
+                ></path>
+              </svg>
+              Entrada
+            </button>
+            <button id="expense-button" type="button" class="btn btn-outline-danger" data-url="{% url 'management:asset-expense-create' %}" style="width: 45%">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-arrow-down-square"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm8.5 2.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293z"
+                ></path>
+              </svg>
+              Saída
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="pb-5">
+    <div class="card text-center">
+      <div class="card-header">Unidade Consumidora</div>
+      <div class="card-header">
+        <ul class="nav nav-pills card-header-pills">
+          <div class="custom-card-pills" style="width: 100%">
+            <li class="nav-item">
+              <button id="wtr" class="btn btn-custom btn-custom-water">
+                <i class="bi bi-droplet-half"></i>
+              </button>
+            </li>
+            <li class="nav-item">
+              <button id="eng" class="btn btn-custom btn-custom-energy">
+                <i class="bi bi-lightning-charge"></i>
+              </button>
+            </li>
+            <li class="nav-item">
+              <button id="gas" class="btn btn-custom btn-custom-gas">
+                <i class="bi bi-fire"></i>
+              </button>
+            </li>
+            <li class="nav-item">
+              <button
+                class="btn btn-custom"
+                id="edit-unit"
+                data-url="{% url 'management:asset-unity' %}"
+              >
+                <i id="edit-unit__icon" class="bi bi-pencil-square"></i>
+              </button>
+            </li>
+          </div>
+        </ul>
+      </div>
+      <div class="card-body">
+        <h5 class="card-title" id="consumer-unit__card--title">Água</h5>
+        <p class="card-text" id="consumer-unit__card--text">
+          <input
+            id="unit-number__input"
+            class="custom-input"
+            type="text"
+            disabled
+          />
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="">
+    <div class="card text-center">
+      <div class="card-header">Arquivo</div>
+      <div class="card-body">
+        <div class="upload-container" style="display: flex; flex-flow: row wrap; justify-content: space-around;">
+          <div>
+            <label for="file-upload" class="custom-file-upload">
+              <i style="height: 10rem;" class="bi bi-cloud-upload-fill"></i>
+            </label>
+            <input data-url="{% url 'management:asset-archive-create' %}" id="file-upload" type="file" />
           </div>
         </div>
-      </a>
+      </div>
     </div>
   </div>
 
-  <div class="card text-center">
-    <div class="card-header">
-      <ul class="nav nav-pills card-header-pills">
-        <div class="custom-card-pills" style="width: 100%">
-          <li class="nav-item">
-            <button id="wtr" class="btn btn-custom btn-custom-water">
-              <i class="bi bi-droplet-half"></i>
-            </button>
-          </li>
-          <li class="nav-item">
-            <button id="eng" class="btn btn-custom btn-custom-energy">
-              <i class="bi bi-lightning-charge"></i>
-            </button>
-          </li>
-          <li class="nav-item">
-            <button id="gas" class="btn btn-custom btn-custom-gas">
-              <i class="bi bi-fire"></i>
-            </button>
-          </li>
-          <li class="nav-item">
-            <button class="btn btn-custom" id="edit-unit" data-url="{% url 'management:asset-unity' %}">
-              <i id="edit-unit__icon" class="bi bi-pencil-square"></i>
-            </button>
-          </li>
+
+  <div id="flow-modal" class="modal" tabindex="-1" id="exampleModal" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"></h5>
+          <button type="button" class="btn-close modal-dismiss" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-      </ul>
-    </div>
-    <div class="card-body">
-      <h5 class="card-title" id="consumer-unit__card--title">Água</h5>
-      <p class="card-text" id="consumer-unit__card--text">
-        <input id="unit-number__input" class="custom-input" type="text" disabled>
-      </p>
+        <div class="modal-body">
+          <p class="modal-body-text"></p>
+          <textarea class="form-control modal-body-textarea" name="description" id="description" rows="4"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary modal-dismiss" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-success modal-save">Adicionar</button>
+        </div>
+      </div>
     </div>
   </div>
+
+  <div id="upload-modal" class="modal" tabindex="-1" id="exampleModal" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="upload-title"></h5>
+          <button type="button" class="btn-close upload-modal-dismiss" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-body-text"></p>
+          <input id="upload-title" type="text" name="title" class="form-control" placeholder="Título">
+          <textarea placeholder="Descrição..." class="form-control" name="description" id="upload-description" rows="4" style="resize: none;"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary upload-modal-dismiss" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-success upload-modal-save">
+            <span hidden class="spinner-border spinner-border-sm upload-spinner" aria-hidden="true"></span>
+            <span role="status" class="upload-spinner-text">Adicionar</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
-<script type="module" src="{% static 'js/asset.js' %}"></script>
+<script type="module" src="{% static 'js/unities.js' %}"></script>
+<script type="module" src="{% static 'js/flow.js' %}"></script>
+<script type="module" src="{% static 'js/archive.js' %}"></script>
 {% endblock subcontent %}

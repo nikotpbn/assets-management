@@ -113,3 +113,44 @@
   color: white;
   background-color: #dc3545;
 }
+
+
+.income-card:hover svg,
+.expense-card:hover svg {
+  fill: white;
+}
+
+.income-card:hover {
+  background: green;
+}
+
+.expense-card:hover {
+  background: #dc3545;
+}
+
+.modal-body-textarea {
+  resize: none;
+  display: none;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+.custom-file-upload {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.custom-file-upload:hover {
+  border: 1px solid antiquewhite;
+  color: #212529;
+  background-color: white;
+}
+
+.invalid {
+  border: 1px solid red;
+}

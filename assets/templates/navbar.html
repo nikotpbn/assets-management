@@ -21,22 +21,6 @@
             ><i class="bi bi-houses" style="margin-right: 2px"></i>Imóveis</a
           >
         </li>
-        <li class="nav-item">
-          <a
-            class="nav-link {% if path == '/annual/report/' %} active {% endif %}"
-            href="{% url 'annual-report' %}"
-            ><i class="bi bi-file-text" style="margin-right: 2px"></i>Relatório
-            Anual</a
-          >
-        </li>
-        <div class="nav-manage">
-          <a
-            class="nav-link {% if path == '/annual/report/' %} active {% endif %}"
-            href="#"
-            ><i class="bi bi-file-text" style="margin-right: 2px"></i>Gerenciamento</a
-          >
-        </div>
-        <div class="nav-manage-burguer">
         <li class="nav-item dropdown">
           <a
             class="nav-link dropdown-toggle"
@@ -45,40 +29,49 @@
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
-            Gerenciamento
+            Relatórios
           </a>
           <ul class="dropdown-menu">
             <li>
-              <a class="dropdown-item disabled" href="#">Adicionar Entrada</a>
+              <a class="dropdown-item disabled" href="#">Desde o início</a>
             </li>
             <li>
-              <hr class="dropdown-divider" />
-            </li>
-            <li>
-              <a class="dropdown-item disabled" href="#"
-                >Adicionar Despesa (Imóvel)</a
+              <a class="dropdown-item" href="{% url 'annual-report' %}"
+                >Anual</a
               >
             </li>
+            <li><a class="dropdown-item disabled" href="#">Mensal</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link dropdown-toggle"
+            href="#"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            Gerenciamneto
+          </a>
+          <ul class="dropdown-menu">
             <li>
-              <a class="dropdown-item disabled" href="#"
-                >Adicionar Despesa (Geral)</a
+              <a class="dropdown-item" href="{% url 'management:dashboard' %}"
+                >Dashboard</a
               >
             </li>
+            <li><hr class="dropdown-divider" /></li>
             <li>
-              <hr class="dropdown-divider" />
+              <a class="dropdown-item" href="{% url 'management:asset' %}"
+                >Imóvel</a
+              >
             </li>
-            <li>
-              <a class="dropdown-item disabled" href="#">Adicionar Arquivo</a>
-            </li>
-            <li>
-              <hr class="dropdown-divider" />
-            </li>
-            <li>
-              <a class="dropdown-item" href="{% url 'create-report' %}">Gerar Relatório</a>
+            <li><hr class="dropdown-divider" /></li>
+            <li disabled>
+              <a class="dropdown-item disabled" href="#">Relatório</a>
             </li>
           </ul>
         </li>
-      </div>
+        <div class="nav-manage-burguer"></div>
         <li>
           <div class="nav-logout-burguer">
             <a
