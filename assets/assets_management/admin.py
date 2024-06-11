@@ -10,7 +10,7 @@ from assets_management.models import (
     Income,
     Archive,
     Report,
-    ConsumerUnity
+    ConsumerUnity,
 )
 
 

@@ -5,16 +5,19 @@ from django.views import View
 from django.db.models import Sum
 from django.http import JsonResponse
 
-import json, decimal, datetime
-from decimal import Decimal
+import json
+import decimal
+import datetime
 
 from assets_management.models import Asset, Income, Expense, Archive, ConsumerUnity
 from management.forms import AssetEditAndCreateForm
 
+
 def decimal_serializer(obj):
-    if isinstance(obj, Decimal):
+    if isinstance(obj, decimal.Decimal):
         return str(obj)
     raise TypeError("Type not serializable")
+
 
 class Dashboard(LoginRequiredMixin, View):
     login_url = "/login/"
@@ -63,8 +66,6 @@ class AssetListView(LoginRequiredMixin, View):
     login_url = "/login/"
 
     def get(self, request):
-        assets = Asset.objects.all()
-        ctx = {"assets": assets}
         return JsonResponse()
 
 
@@ -101,13 +102,13 @@ class AssetConsumerUnityView(LoginRequiredMixin, View):
             msg = 'Unidade atualizada com succeso'
 
         except ConsumerUnity.DoesNotExist:
-            create_defaults = {'asset': asset, 'source':data["source"], 'number':data["number"] }
+            create_defaults = {'asset': asset, 'source': data["source"], 'number': data["number"]}
             unity = ConsumerUnity.objects.create(**create_defaults)
             status = 200
             msg = 'Unidade criada com succeso'
 
-
         return JsonResponse({"message": msg, 'status': status})
+
 
 class AssetArchiveCreateView(LoginRequiredMixin, View):
     login_url = "/login/"
@@ -118,7 +119,9 @@ class AssetArchiveCreateView(LoginRequiredMixin, View):
         archive = None
 
         asset = Asset.objects.get(pk=request.POST['asset_id'])
-        data_is_valid = request.POST['title'].strip() != "" and request.POST['description'].strip() != ""
+        title = request.POST['title'].strip()
+        description = request.POST['description'].strip()
+        data_is_valid = title != "" and description != ""
 
         if data_is_valid:
             archive = Archive.objects.create(
@@ -134,12 +137,13 @@ class AssetArchiveCreateView(LoginRequiredMixin, View):
 
         return JsonResponse({'message': msg, 'status': status})
 
+
 class AssetIncomeCreateView(LoginRequiredMixin, View):
     login_url = "/login/"
 
     def post(self, request):
         data = json.loads(request.body)
-        value = data['value'].replace(".","").replace(",",".")
+        value = data['value'].replace(".", "").replace(",", ".")
         year, month, day = data['date'].split("-")
         asset = Asset.objects.get(pk=data['asset_id'])
         validated_data = {
@@ -147,7 +151,7 @@ class AssetIncomeCreateView(LoginRequiredMixin, View):
             'date': datetime.date(int(year), int(month), int(day)),
             'asset': asset
         }
-        income =  Income.objects.create(**validated_data)
+        income = Income.objects.create(**validated_data)
 
         if income:
             msg = f'Criada entrada no valor de R$ {data['value']} para o imóvel {asset.name}'
@@ -164,7 +168,7 @@ class AssetExpenseCreateView(LoginRequiredMixin, View):
 
     def post(self, request):
         data = json.loads(request.body)
-        value = data['value'].replace(".","").replace(",",".")
+        value = data['value'].replace(".", "").replace(",", ".")
         year, month, day = data['date'].split("-")
         asset = Asset.objects.get(pk=data['asset_id'])
         validated_data = {
