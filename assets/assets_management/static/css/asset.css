@@ -32,3 +32,13 @@
     align-items: left;
 }
 
+.expense-filter {
+    border: 1px solid rgba(255,255,255,.2);
+    margin: 1rem;
+    width: 97%;
+}
+
+.result-header {
+    margin-top: 1rem;
+    text-align: center;
+}

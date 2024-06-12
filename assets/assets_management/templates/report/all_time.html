@@ -1,0 +1,223 @@
+{% extends "asset_management_base.html" %}
+
+{% block content %}
+<div class="container d-flex justify-content-center px-4 py-5">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item active" aria-current="page">
+        Relatório Completo
+      </li>
+    </ol>
+  </nav>
+</div>
+
+<div class="container px-4 py-5">
+    <div class="value-card">
+      <legend>Imóvel</legend>
+      <form id="asset-form" action="{% url 'all-time-report' %}" method="GET">
+        <select
+          id="asset-select"
+          name="asset"
+          class="form-select"
+          aria-label="Default select example"
+        >
+          {% for asset in assets %}
+            {% if selected_asset == asset.id %}
+                <option value="{{asset.id}}" selected>{{asset}}</option>
+            {% else %}
+                <option value="{{asset.id}}">{{asset}}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+      </form>
+    </div>
+</div>
+
+<div class="container px-4">
+    <h2 class="pb-2 border-bottom">Resumo</h2>
+    <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-3">
+      <div class="col d-flex justify-content-center">
+        <div class="value-card">
+          <p>
+            <i
+              class="bi bi-caret-up-fill"
+              style="color: green; margin-right: 0.25rem"
+            ></i
+            >Entradas
+          </p>
+          <p>R$ {{metadata.total_income|floatformat:3|floatformat:"2g"}}</p>
+        </div>
+      </div>
+      <div class="col d-flex justify-content-center">
+        <div class="value-card">
+          <p>
+            <i
+              class="bi bi-caret-down-fill"
+              style="color: red; margin-right: 0.25rem"
+            ></i
+            >Saídas
+          </p>
+          <p>R$ {{metadata.total_expense|floatformat:3|floatformat:"2g"}}</p>
+        </div>
+      </div>
+      <div class="col d-flex justify-content-center">
+        <div class="value-card">
+          <p><i class="bi bi-cash" style="margin-right: 0.25rem"></i>Total</p>
+          <p>R$ {{metadata.balance|floatformat:3|floatformat:"2g"}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<div class="container px-4 pt-5">
+    <h2 class="pb-2 border-bottom">Despesas</h2>
+    <div class="value-card">
+        <legend>Filtro</legend>
+        <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="inlineRadioassets"
+              id="date-filter"
+              value="date"
+              checked
+            />
+            <label class="form-check-label" for="inlineRadio1">Data</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="inlineRadioassets"
+              id="value-filter"
+              value="value"
+            />
+            <label class="form-check-label" for="inlineRadio2">Valor</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="inlineRadioassets"
+              id="description-filter"
+              value="description"
+            />
+            <label class="form-check-label" for="inlineRadio3">Descrição</label>
+        </div>
+    </div>
+
+    <div class="card" style="margin: 1rem; border: 1px solid white;">
+        <div class="card-header" style="display: flex; flex-flow: row nowrap; align-items: center; justify-content: center;">
+            <input type="text" class="form-control expense-filter" id="expense-filter" placeholder="Procurar..">
+
+        </div>
+
+        <div class="container" id="expenses-container">
+            <table style="padding: 1rem;" class="table table-dark table-sm" id="expenses" data-expenses="{{expenses}}">
+                <tr class="header">
+                  <th style="width: 20%">Data</th>
+                  <th style="width: 20%">Valor</th>
+                  <th style="width: 60%">Descrição</th>
+                </tr>
+
+                <tbody class="table-group-divider">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+</div>
+
+<script>
+    const assetSelect = document.getElementById("asset-select");
+    const assetForm = document.getElementById("asset-form");
+    assetSelect.addEventListener("change", (event) => {
+        assetForm.submit();
+    });
+
+    const filterElements = document.querySelectorAll(".form-check-input");
+    const expensesTable = document.querySelector("#expenses");
+    const expenseContainer = document.getElementById("expenses-container");
+    const expenseTextFilter = document.getElementById("expense-filter");
+    const expenses = JSON.parse(expensesTable.dataset.expenses);
+    let columnFilter = 'date';
+
+    function delay(fn, ms) {
+        let timer = 0
+        return function(...args) {
+            clearTimeout(timer)
+            timer = setTimeout(fn.bind(this, ...args), ms || 0)
+        }
+    }
+
+    filterElements.forEach(element => {
+        element.addEventListener("click", () => {
+            columnFilter = element.value;
+        })
+    });
+
+    const clearTable = (table) => {
+        try {
+            for (let i=0; i=9; i++) {
+            table.deleteRow(1);
+        }
+        } catch (error) {
+
+        }
+    }
+
+    const lastTenElements = (table, data) => {
+        if (data.length === 0) {
+            const resultHeader = document.getElementById('result-header');
+            if (resultHeader === null) {
+                expensesTable.hidden = true;
+                const header = document.createElement("p")
+                header.classList.add('result-header')
+                header.setAttribute('id', 'result-header')
+                header.innerHTML = 'Não há resultado para esta pesquisa...'
+                expenseContainer.append(header);
+            }
+        } else {
+            const resultHeader = document.getElementById('result-header');
+            if (resultHeader) {
+                resultHeader.remove();
+            }
+            expensesTable.hidden = false;
+
+            const limit = data.length <= 10 ? data.length : 10;
+            for (let i=0; i<limit; i++) {
+                let row = table.insertRow(i+1);
+                let dateCell = row.insertCell(0);
+                let valueCell = row.insertCell(1);
+                let descriptionCell = row.insertCell(2);
+
+                dateCell.innerHTML = data[i].date
+                valueCell.innerHTML = `R$ ${data[i].value}`
+                descriptionCell.innerHTML = data[i].description
+            }
+        }
+    }
+
+    const filterData = () => {
+        let filter = []
+        clearTable(expensesTable);
+        if (expenseTextFilter.value.trim() === "") {
+            lastTenElements(expensesTable, expenses)
+        } else {
+            expenses.forEach(element => {
+                if (element[columnFilter] != null && element[columnFilter].includes(expenseTextFilter.value)) {
+                    filter.push(element);
+                }
+            });
+            lastTenElements(expensesTable, filter);
+        }
+    }
+    expenseTextFilter.addEventListener("keyup", delay(filterData,500));
+    filterData();
+  </script>
+
+
+{% endblock content %}

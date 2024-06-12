@@ -6,6 +6,7 @@ from .views import (
     month_report,
     asset_contract,
     asset_deed,
+    AllTimeReportView,
     create_report
 )
 
@@ -16,5 +17,6 @@ urlpatterns = [
     path("asset/deed/<slug:slug>", asset_deed, name="asset-deed"),
     path("annual/report", annual_report, name="annual-report"),
     path("month/report/<int:year>/<int:month>", month_report, name="month-report"),
+    path("alltime/report", AllTimeReportView.as_view(), name="all-time-report"),
     path("report/create", create_report, name="create-report"),
 ]

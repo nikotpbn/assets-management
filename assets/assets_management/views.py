@@ -4,6 +4,8 @@ from django.http import FileResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 
+from django.views import View
+
 from .models import Asset, GeneralExpense, Expense, Income, Report
 from .util import (
     fill_up_missing_months,
@@ -12,10 +14,49 @@ from .util import (
     calculate_balance,
     check_aggregation_value,
     customPdf,
+    decimal_serializer,
+    date_serializer,
+    zero_if_none,
 )
 
 import json
 import datetime
+
+
+class AllTimeReportView(View):
+    def get(self, request):
+        assets = Asset.objects.all()
+        metadata = {}
+        selected_asset = int(request.GET.get("asset", "1"))
+
+        asset = Asset.objects.get(id=selected_asset)
+
+        expenses_qs = asset.expenses.all().order_by("-date")
+        incomes_qs = asset.incomes.all().order_by("-date")
+        metadata["total_expense"] = zero_if_none(expenses_qs.aggregate(Sum("value"))["value__sum"])
+        metadata["total_income"] = zero_if_none(incomes_qs.aggregate(Sum("value"))["value__sum"])
+        metadata["balance"] = calculate_balance(metadata["total_income"], metadata["total_expense"])
+
+        expenses = [
+            {
+                "date": date_serializer(obj.date),
+                "value": decimal_serializer(obj.value),
+                "description": obj.description,
+            }
+            for obj in expenses_qs
+        ]
+
+        return render(
+            request,
+            "report/all_time.html",
+            {
+                "selected_asset": selected_asset,
+                "assets": assets,
+                "asset": asset,
+                "expenses": json.dumps(expenses),
+                "metadata": metadata,
+            },
+        )
 
 
 def month_report(request, year, month):

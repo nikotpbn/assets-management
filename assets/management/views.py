@@ -174,6 +174,7 @@ class AssetExpenseCreateView(LoginRequiredMixin, View):
         validated_data = {
             'value': decimal.Decimal(value),
             'date': datetime.date(int(year), int(month), int(day)),
+            'description': data['description'],
             'asset': asset
         }
         expense = Expense.objects.create(**validated_data)

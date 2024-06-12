@@ -13,6 +13,20 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 PAGE_WIDTH, PAGE_HEIGHT = A4
 
 
+def decimal_serializer(obj):
+    if isinstance(obj, Decimal):
+        return str(obj)
+    raise TypeError("Type not serializable")
+
+def date_serializer(obj):
+    if isinstance(obj, date):
+        month = f'0{obj.month}' if obj.month < 10 else obj.month
+        day = f'0{obj.day}' if obj.day < 10 else obj.day
+        return f'{obj.year}-{month}-{day}'
+    raise TypeError("Type not serializable")
+
+
+
 def retrieve_file_extension(file):
     return file.name.split(".")[-1].lower()
 
@@ -30,6 +44,12 @@ def calculate_expenses_totals(v1, v2):
         return v2
     else:
         return 0
+
+
+def zero_if_none(value):
+    if value is None:
+        return 0
+    return value
 
 
 def calculate_balance(income, expense):
