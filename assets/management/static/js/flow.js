@@ -1,4 +1,8 @@
-import { getCookie, sendRequest } from "/static/js/util.js";
+import {
+  getCookie,
+  sendRequest,
+  displayToastCustomMessage,
+} from "/static/js/util.js";
 
 const headers = {
   "Content-Type": "application/json",
@@ -13,10 +17,6 @@ const incomeExpenseModalElement = document.getElementById("flow-modal");
 
 const flowDateInputElement = document.getElementById("flow-date-input");
 const flowValueInputElement = document.getElementById("flow-value-input");
-
-const toastTrigger = document.getElementById("liveToastBtn");
-const toastLiveExample = document.getElementById("liveToast");
-const toastLiveBody = document.querySelector(".toast-body");
 
 const modalTitle = document.querySelector(".modal-title");
 const modalBodyText = document.querySelector(".modal-body-text");
@@ -117,7 +117,7 @@ const displayModal = (data, flow) => {
   modalBodyText.innerHTML = message;
   modalTitle.innerHTML = `Criar ${flow}`;
 
-  if (flow === 'saida') {
+  if (flow === "saida") {
     modalBodyTextAreaInput.style.display = "block";
   } else {
     modalBodyTextAreaInput.style.display = "none";
@@ -148,7 +148,6 @@ expenseButtonElement.addEventListener("click", (event) => {
   }
   addExpense = !addExpense;
   getFormData("saida");
-
 });
 
 const moneyMask = (value) => {
@@ -174,19 +173,6 @@ const formatDate = (year, month, day) => {
     day = `0${day}`;
   }
   return `${year}-${month}-${day}`;
-};
-
-export const displayToastCustomMessage = (message, status) => {
-  if (status === 200) {
-    toastLiveExample.classList.remove("text-bg-danger");
-    toastLiveExample.classList.add("text-bg-success");
-  } else {
-    toastLiveExample.classList.remove("text-bg-success");
-    toastLiveExample.classList.add("text-bg-danger");
-  }
-  toastLiveBody.innerHTML = message;
-  const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample);
-  toastBootstrap.show();
 };
 
 window.addEventListener("load", async () => {

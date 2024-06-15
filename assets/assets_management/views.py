@@ -1,9 +1,11 @@
+import json
+import datetime
+
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Sum
 from django.http import FileResponse
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.files.base import ContentFile
-
 from django.views import View
 
 from .models import Asset, GeneralExpense, Expense, Income, Report
@@ -13,17 +15,13 @@ from .util import (
     calculate_expenses_totals,
     calculate_balance,
     check_aggregation_value,
-    customPdf,
     decimal_serializer,
     date_serializer,
     zero_if_none,
 )
 
-import json
-import datetime
 
-
-class AllTimeReportView(View):
+class AllTimeReportView(LoginRequiredMixin, View):
     def get(self, request):
         assets = Asset.objects.all()
         metadata = {}
@@ -33,9 +31,15 @@ class AllTimeReportView(View):
 
         expenses_qs = asset.expenses.all().order_by("-date")
         incomes_qs = asset.incomes.all().order_by("-date")
-        metadata["total_expense"] = zero_if_none(expenses_qs.aggregate(Sum("value"))["value__sum"])
-        metadata["total_income"] = zero_if_none(incomes_qs.aggregate(Sum("value"))["value__sum"])
-        metadata["balance"] = calculate_balance(metadata["total_income"], metadata["total_expense"])
+        metadata["total_expense"] = zero_if_none(
+            expenses_qs.aggregate(Sum("value"))["value__sum"]
+        )
+        metadata["total_income"] = zero_if_none(
+            incomes_qs.aggregate(Sum("value"))["value__sum"]
+        )
+        metadata["balance"] = calculate_balance(
+            metadata["total_income"], metadata["total_expense"]
+        )
 
         expenses = [
             {
@@ -92,91 +96,79 @@ def month_report(request, year, month):
     return render(request, "report/month.html", ctx)
 
 
-def annual_report(request):
-    if not request.user.is_authenticated:
-        return redirect("/login")
+class AnnualReportView(LoginRequiredMixin, View):
 
-    initial_year = 2022
-    current_year = datetime.datetime.now().year
-    year_options = [i for i in range(initial_year, current_year + 1)]
+    def get(self, request):
+        initial_year = 2022
+        current_year = datetime.datetime.now().year
 
-    year_filter = request.GET.get("year" or None)
-    if not year_filter and request.method == "POST":
-        year_filter = request.POST.get("year" or None)
+        selected_year = request.GET.get("year", None)
+        if not selected_year:
+            selected_year = datetime.datetime.now().year
+        else:
+            selected_year = int(selected_year)
 
-    if year_filter:
-        current_year = int(year_filter)
+        year_options = [i for i in range(initial_year, current_year + 1)]
 
-    try:
-        report = Report.objects.get(year=current_year)
-        if request.method == "POST":
-            pdf_download = request.POST.get("pdf_download", None)
-            if pdf_download:
-                return FileResponse(report.file, filename="file.pdf")
-    except ObjectDoesNotExist:
-        report = None
+        asset_expenses_qs = (
+            Expense.objects.filter(date__year=selected_year)
+            .values("date__month")
+            .annotate(total=Sum("value"))
+            .order_by()
+        )
 
-    general_expenses_qs = (
-        GeneralExpense.objects.filter(date__year=current_year)
-        .values("date__month")
-        .annotate(total=Sum("value"))
-        .order_by()
-    )
+        general_expenses_qs = (
+            GeneralExpense.objects.filter(date__year=selected_year)
+            .values("date__month")
+            .annotate(total=Sum("value"))
+            .order_by()
+        )
 
-    asset_expenses_qs = (
-        Expense.objects.filter(date__year=current_year)
-        .values("date__month")
-        .annotate(total=Sum("value"))
-        .order_by()
-    )
+        asset_expenses_qs = (
+            Expense.objects.filter(date__year=selected_year)
+            .values("date__month")
+            .annotate(total=Sum("value"))
+            .order_by()
+        )
 
-    incomes_qs = (
-        Income.objects.filter(date__year=current_year)
-        .values("date__month")
-        .annotate(total=Sum("value"))
-        .order_by()
-    )
+        incomes_qs = (
+            Income.objects.filter(date__year=selected_year)
+            .values("date__month")
+            .annotate(total=Sum("value"))
+            .order_by()
+        )
 
-    gex = fill_up_missing_months(general_expenses_qs)
-    aex = fill_up_missing_months(asset_expenses_qs)
-    inc = fill_up_missing_months(incomes_qs)
+        gex = fill_up_missing_months(general_expenses_qs)
+        aex = fill_up_missing_months(asset_expenses_qs)
+        inc = fill_up_missing_months(incomes_qs)
 
-    consolidated_data, metadata = consolidate(gex, aex, inc, current_year)
-
-    if request.method == "POST":
         try:
-            ardex_qs = Expense.objects.filter(
-                date__year=current_year, tax_deductible=True
-            )
-            ardex = fill_up_missing_months(
-                ardex_qs.values("date__month").annotate(total=Sum("value")).order_by()
-            )
-            pdf_obj = customPdf(inc, ardex, ardex_qs, current_year)
-            buffer = pdf_obj.build()
-            pdf = buffer.getvalue()
-            pdf_file = ContentFile(pdf)
-            pdf_file.name = f"Relatório Anual {current_year}.pdf"
+            report = Report.objects.get(year=selected_year)
+        except ObjectDoesNotExist:
+            report = None
 
-            if report:
-                report.file.delete()
-                report.file = pdf_file
-                report.save()
-            else:
-                report = Report.objects.create(year=current_year, file=pdf_file)
-        except Exception as e:
-            print(f"Algo de errado aconteceu: {e}")
+        consolidated_data, metadata = consolidate(gex, aex, inc, selected_year)
+        ctx = {
+            "report": report,
+            "year_options": year_options,
+            "year": selected_year,
+            "metadata": metadata,
+            "monthly_flow": consolidated_data,
+            "monthly_json": json.dumps(consolidated_data, default=str),
+            "path": "/annual/report/",
+        }
 
-    ctx = {
-        "report": report,
-        "year_options": year_options,
-        "year": current_year,
-        "metadata": metadata,
-        "monthly_flow": consolidated_data,
-        "monthly_json": json.dumps(consolidated_data, default=str),
-        "path": "/annual/report/",
-    }
+        return render(request, "report/annual.html", ctx)
 
-    return render(request, "report/annual.html", ctx)
+    def post(self, request):
+        year = request.POST.get("year", None)
+
+        try:
+            report = Report.objects.get(year=year)
+            return FileResponse(report.file, filename="file.pdf")
+
+        except ObjectDoesNotExist:
+            report = None
 
 
 def asset_list(request):
@@ -195,9 +187,9 @@ def asset_detail(request, slug=None):
 
     asset = get_object_or_404(Asset, slug=slug)
     consumer_unities = asset.unities.all()
-    current_year = datetime.datetime.now().year
-    incomes = asset.incomes.filter(date__year=current_year).order_by("date")
-    expenses = asset.expenses.filter(date__year=current_year).order_by("date")
+    selected_year = datetime.datetime.now().year
+    incomes = asset.incomes.filter(date__year=selected_year).order_by("date")
+    expenses = asset.expenses.filter(date__year=selected_year).order_by("date")
     start_date = f"{datetime.datetime.now().year}-01"
     end_date = f"{datetime.datetime.now().year}-{datetime.datetime.now().month:02d}"
     latest_contract = asset.contracts.filter(end__isnull=True)
@@ -275,19 +267,3 @@ def asset_deed(request, slug):
 
     asset = get_object_or_404(Asset, slug=slug)
     return FileResponse(asset.deed.file, filename=f"Contrato {asset.name}.pdf")
-
-
-def create_report(request):
-    if not request.user.is_authenticated:
-        return redirect("/login")
-
-    initial_year = 2022
-    current_year = datetime.datetime.now().year
-    year_options = [i for i in range(initial_year, current_year + 1)]
-
-    ctx = {
-        "year_options": year_options,
-        "year": current_year,
-    }
-
-    return render(request, "report/create.html", ctx)

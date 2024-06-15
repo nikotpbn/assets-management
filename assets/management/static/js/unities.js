@@ -1,5 +1,8 @@
-import { getCookie, sendRequest } from "/static/js/util.js";
-import { displayToastCustomMessage } from "/static/js/flow.js";
+import {
+  getCookie,
+  sendRequest,
+  displayToastCustomMessage,
+} from "/static/js/util.js";
 
 let selectedConsumerUnity = "W";
 let selectedConsumerunityElement = null;
@@ -158,7 +161,6 @@ const updateAsset = async () => {
     }
     asset.id = assetSelectElement.value;
     asset.unities = unities;
-
   } catch (error) {
     console.log(error.message);
   }

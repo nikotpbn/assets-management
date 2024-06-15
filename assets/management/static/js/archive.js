@@ -1,5 +1,4 @@
-import { getCookie } from "/static/js/util.js";
-import { displayToastCustomMessage } from "/static/js/flow.js";
+import { getCookie, displayToastCustomMessage } from "/static/js/util.js";
 
 let uploadInput;
 let sendUploadModalButton;
@@ -24,15 +23,15 @@ const uploadSpinnerText = document.querySelector(".upload-spinner-text");
 const resetUploadModalText = () => {
   modalUploadTitleInput.value = "";
   uploadModalDescription.value = "";
-}
+};
 
 const disableDismissButtons = (handler) => {
   if (handler) {
-    modalDismissButtons.forEach(element => element.disabled = true);
+    modalDismissButtons.forEach((element) => (element.disabled = true));
   } else {
-    modalDismissButtons.forEach(element => element.disabled = false);
+    modalDismissButtons.forEach((element) => (element.disabled = false));
   }
-}
+};
 
 const modalSaveButtonSpinner = (handler) => {
   if (handler) {
@@ -42,7 +41,7 @@ const modalSaveButtonSpinner = (handler) => {
     uploadSpinner.hidden = true;
     uploadSpinnerText.innerHTML = "Adicionar";
   }
-}
+};
 
 async function uploadFile(e) {
   e.preventDefault();

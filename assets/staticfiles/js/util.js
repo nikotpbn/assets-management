@@ -1,3 +1,19 @@
+const toastLiveExample = document.getElementById("liveToast");
+const toastLiveBody = document.querySelector(".toast-body");
+
+export const displayToastCustomMessage = (message, status) => {
+  if (status === 200) {
+    toastLiveExample.classList.remove("text-bg-danger");
+    toastLiveExample.classList.add("text-bg-success");
+  } else {
+    toastLiveExample.classList.remove("text-bg-success");
+    toastLiveExample.classList.add("text-bg-danger");
+  }
+  toastLiveBody.innerHTML = message;
+  const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample);
+  toastBootstrap.show();
+};
+
 export function getCookie(name) {
   let cookieValue = null;
   if (document.cookie && document.cookie !== "") {

@@ -5,6 +5,7 @@ from management.views import (
     AssetIncomeCreateView,
     AssetExpenseCreateView,
     AssetArchiveCreateView,
+    AssetAnnualReportCreateView,
 )
 from django.urls import path
 
@@ -28,5 +29,8 @@ urlpatterns = [
         "asset/archive/create/",
         AssetArchiveCreateView.as_view(),
         name="asset-archive-create",
+    ),
+    path(
+        "report/create/", AssetAnnualReportCreateView.as_view(), name="create-report"
     ),
 ]
