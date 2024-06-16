@@ -105,7 +105,7 @@ def password_recover(request):
                 message.template_id = TemplateId("d-625d7825c2494f2092aa2de9fa342543")
 
                 personalization = Personalization()
-                personalization.add_to(Email("nikobeltrao@gmail.com"))
+                personalization.add_to(Email(obj.user.email))
                 personalization.dynamic_template_data = {
                     "email": f"{obj.user.email}",
                     "link": f"https://beltraoimoveis.com/password/recover/new/?token={obj.token}",
@@ -120,7 +120,8 @@ def password_recover(request):
 
             except ObjectDoesNotExist:
                 error = "Um usuário com este email não existe"
-            except Exception:
+            except Exception as e:
+                print(f"Algo de errado aconteceu: {e}")
                 error = "Algo de errado aconteceu."
         else:
             error = "Email Inválido"
