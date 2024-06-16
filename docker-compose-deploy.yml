@@ -13,6 +13,7 @@ services:
       - aws_access_key
       - aws_secret_key
       - aws_bucket_name
+      - sendgrid_api_key
     environment:
       DEBUG: 0
       MYSQL_HOST: db
@@ -82,3 +83,5 @@ secrets:
     file: ./secrets/aws/aws_bucket_name.txt
   aws_secret_key:
     file: ./secrets/aws/aws_secret_key.txt
+  sendgrid_api_key:
+    file: ./secrets/sendgrid/api_key.txt
