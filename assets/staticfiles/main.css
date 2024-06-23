@@ -43,3 +43,19 @@
   background-color: rgba(0, 0, 0, 0.6);
   z-index: 1;
 }
+
+.custom-btn {
+  background-color: #212529;
+  border: 1px solid white;
+  border-radius: 5px;
+}
+
+.custom-btn:hover {
+  background-color: white;
+  color: #212529;
+}
+
+.custom-btn.active {
+  background-color: white;
+  color: #212529;
+}

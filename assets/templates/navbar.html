@@ -40,7 +40,9 @@
                 >Anual</a
               >
             </li>
-            <li><a class="dropdown-item disabled" href="#">Mensal</a></li>
+            {% now "Y" as year %}
+            {% now "m" as month %}
+            <li><a class="dropdown-item" href="{% url 'month-report' year month %}">Mensal</a></li>
           </ul>
         </li>
         <li class="nav-item dropdown">

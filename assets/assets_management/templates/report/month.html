@@ -1,129 +1,269 @@
-{% extends "asset_management_base.html" %}
-
-{% block content %}
+{% extends "asset_management_base.html" %} {% block content %}
 <div class="container d-flex justify-content-center px-4 py-5">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item active"><a href="{% url 'annual-report'%}?year={{date.year}}">Relatório Anual</a></li>
-            <li class="breadcrumb-item" aria-current="page">{{date|date:"M"}} de {{date|date:"Y"}}</li>
-        </ol>
-    </nav>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item active">
+        <a href="{% url 'annual-report'%}?year={{date.year}}"
+          >Relatório Anual</a
+        >
+      </li>
+      <li class="breadcrumb-item" aria-current="page">
+        {{date|date:"M"}} de {{date|date:"Y"}}
+      </li>
+    </ol>
+  </nav>
+</div>
+
+<div
+  class="container px-4"
+  >
+
+  <form
+    id="report-form"
+    style="display: flex; flex-flow: row wrap;"
+    method="GET"
+    data-selected-year="{{date|date:"Y"}}"
+    data-selected-month="{{date|date:"m"}}"
+    action="{% url 'month-report' date.year date.month %}"
+    >
+    {%csrf_token%}
+    <select style="width: 100%; margin-bottom: 5px;" class="form-select" name="year" id="year">
+      {% for option in years %} {% if date.year == option %}
+      <option value="{{option}}" selected>{{option}}</option>
+      {% else %}
+      <option value="{{option}}">{{option}}</option>
+      {% endif %} {% endfor %}
+    </select>
+
+    <div style="display: flex; flex-flow: row nowrap; width: 100%;">
+      {% for month in months %}
+          {% if forloop.counter <= 6%}
+          <button
+              class="custom-btn month-btn"
+              name="month"
+              data-month="{{forloop.counter}}"
+              style="
+              display: flex;
+              flex-grow: 1;
+              margin: 0 3px;
+              justify-content: center;
+              align-items: center;
+              padding: 2px;
+              "
+          >
+              {{month.name}}
+          </button>
+          {% endif %}
+      {% endfor %}
+    </div>
+
+    <div style="display: flex; flex-flow: row nowrap; width: 100%; margin-top: 3px;">
+        {% for month in months %}
+            {% if forloop.counter > 6%}
+            <button
+                class="custom-btn month-btn"
+                name="month"
+                data-month="{{forloop.counter}}"
+                style="
+                display: flex;
+                flex-grow: 1;
+                margin: 0 3px;
+                justify-content: center;
+                align-items: center;
+                padding: 2px;
+                "
+            >
+                {{month.name}}
+            </button>
+            {% endif %}
+        {% endfor %}
+    </div>
+  </form>
 </div>
 
 <div class="container px-4">
-    <h2 class="pb-2 border-bottom">Resumo</h2>
-    <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-3">
-        <div class="col d-flex justify-content-center">
-            <div class="value-card">
-                <p><i class="bi bi-caret-up-fill" style="color: green; margin-right: 0.25rem;"></i>Entradas</p>
-                <p>R$ {{tin|floatformat:3|floatformat:"2g"}}</p>
-            </div>
-        </div>
-        <div class="col d-flex justify-content-center">
-            <div class="value-card">
-                <p><i class="bi bi-caret-down-fill" style="color: red; margin-right: 0.25rem;"></i>Saídas</p>
-                <p>R$ {{tex|floatformat:3|floatformat:"2g"}}</p>
-            </div>
-        </div>
-        <div class="col d-flex justify-content-center">
-            <div class="value-card">
-                <p><i class="bi bi-cash" style="margin-right: 0.25rem;"></i>Total</p>
-                <p>R$ {{bal|floatformat:3|floatformat:"2g"}}</p>
-            </div>
-        </div>
+  <h2 class="pb-2 border-bottom">Resumo</h2>
+  <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-3">
+    <div class="col d-flex justify-content-center">
+      <div class="value-card">
+        <p>
+          <i
+            class="bi bi-caret-up-fill"
+            style="color: green; margin-right: 0.25rem"
+          ></i
+          >Entradas
+        </p>
+        <p>R$ {{tin|floatformat:3|floatformat:"2g"}}</p>
+      </div>
     </div>
+    <div class="col d-flex justify-content-center">
+      <div class="value-card">
+        <p>
+          <i
+            class="bi bi-caret-down-fill"
+            style="color: red; margin-right: 0.25rem"
+          ></i
+          >Saídas
+        </p>
+        <p>R$ {{tex|floatformat:3|floatformat:"2g"}}</p>
+      </div>
+    </div>
+    <div class="col d-flex justify-content-center">
+      <div class="value-card">
+        <p><i class="bi bi-cash" style="margin-right: 0.25rem"></i>Total</p>
+        <p>R$ {{bal|floatformat:3|floatformat:"2g"}}</p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="container px-4">
-    <h2 class="pb-2 border-bottom">Entradas de Imóveis</h2>
-    {% if inc %}
-    <table class="table table-dark table-sm">
-        <thead>
-            <tr>
-                <th>Dia</th>
-                <th>Valor</th>
-                <th>Imóvel</th>
-            </tr>
-        </thead>
+  <h2 class="pb-2 border-bottom">Entradas de Imóveis</h2>
+  {% if inc %}
+  <table class="table table-dark table-sm">
+    <thead>
+      <tr>
+        <th>Dia</th>
+        <th>Valor</th>
+        <th>Imóvel</th>
+      </tr>
+    </thead>
 
-        <tbody class="table-group-divider">
-            {% for income in inc %}
-            <tr>
-                <td>{{income.date|date:"d"}}</td>
-                <td>R$ {{income.value|floatformat:3|floatformat:"2g"}}</td>
-                <td>{{income.asset}}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <div class="d-flex text-center">
-        <p>Não existem entradas para o mês deste ano.</p>
-    </div>
-    {% endif %}
+    <tbody class="table-group-divider">
+      {% for income in inc %}
+      <tr>
+        <td>{{income.date|date:"d"}}</td>
+        <td>R$ {{income.value|floatformat:3|floatformat:"2g"}}</td>
+        <td>{{income.asset}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="d-flex text-center">
+    <p>Não existem entradas para o mês deste ano.</p>
+  </div>
+  {% endif %}
 </div>
 
 <div class="container px-4">
-    <h2 class="pb-2 border-bottom">Despesas de Imóveis</h2>
-    {% if aex %}
-    <table class="table table-dark table-sm">
-        <thead>
-            <tr>
-                <th>Dia</th>
-                <th>Valor</th>
-                <th>Descrição</th>
-                <th>Imóvel</th>
-                <th>Ver Documento</th>
-            </tr>
-        </thead>
+  <h2 class="pb-2 border-bottom">Despesas de Imóveis</h2>
+  {% if aex %}
+  <table class="table table-dark table-sm">
+    <thead>
+      <tr>
+        <th>Dia</th>
+        <th>Valor</th>
+        <th>Descrição</th>
+        <th>Imóvel</th>
+        <th>Ver Documento</th>
+      </tr>
+    </thead>
 
-        <tbody class="table-group-divider">
-            {% for expense in aex %}
-            <tr>
-                <td>{{expense.date|date:"d"}}</td>
-                <td>R$ {{expense.value|floatformat:3|floatformat:"2g"}}</td>
-                <td>{{expense.description}}</td>
-                <td>{{expense.asset.name}}</td>
-                <td>{{expense.document}}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <div class="d-flex text-center">
-        <p>Não existem despesas para o mês deste ano.</p>
-    </div>
-    {% endif %}
+    <tbody class="table-group-divider">
+      {% for expense in aex %}
+      <tr>
+        <td>{{expense.date|date:"d"}}</td>
+        <td>R$ {{expense.value|floatformat:3|floatformat:"2g"}}</td>
+        <td>{{expense.description}}</td>
+        <td>{{expense.asset.name}}</td>
+        <td>{{expense.document}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="d-flex text-center">
+    <p>Não existem despesas para o mês deste ano.</p>
+  </div>
+  {% endif %}
 </div>
 
 <div class="container px-4">
-    <h2 class="pb-2 border-bottom">Despesas de Gerais</h2>
-    {% if gex %}
-    <table class="table table-dark table-sm">
-        <thead>
-            <tr>
-                <th>Dia</th>
-                <th>Valor</th>
-                <th>Descrição</th>
-                <th>Ver Documento</th>
-            </tr>
-        </thead>
+  <h2 class="pb-2 border-bottom">Despesas de Gerais</h2>
+  {% if gex %}
+  <table class="table table-dark table-sm">
+    <thead>
+      <tr>
+        <th>Dia</th>
+        <th>Valor</th>
+        <th>Descrição</th>
+        <th>Ver Documento</th>
+      </tr>
+    </thead>
 
-        <tbody class="table-group-divider">
-            {% for expense in gex %}
-            <tr>
-                <td>{{expense.date|date:"d"}}</td>
-                <td>R$ {{expense.value|floatformat:3|floatformat:"2g"}}</td>
-                <td>{{expense.description}}</td>
-                <td>{{expense.document}}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <div class="d-flex text-center">
-        <p>Não existem despesas para o mês deste ano.</p>
-    </div>
-    {% endif %}
+    <tbody class="table-group-divider">
+      {% for expense in gex %}
+      <tr>
+        <td>{{expense.date|date:"d"}}</td>
+        <td>R$ {{expense.value|floatformat:3|floatformat:"2g"}}</td>
+        <td>{{expense.description}}</td>
+        <td>{{expense.document}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="d-flex text-center">
+    <p>Não existem despesas para o mês deste ano.</p>
+  </div>
+  {% endif %}
 </div>
+
+<script>
+  let selectedYear;
+  let selectedMonth;
+  let activeMonth;
+  const formElement = document.getElementById("report-form");
+
+  const yearSelect = document.getElementById("year");
+  const monthButtons = document.querySelectorAll(".month-btn");
+
+  yearSelect.addEventListener("change", yearHandler);
+  monthButtons.forEach(element => {
+    element.addEventListener("click", monthHandler)
+  });
+
+function yearHandler (e) {
+    e.preventDefault();
+    submitForm(selectedMonth, this.value);
+  };
+
+  function monthHandler (e) {
+    e.preventDefault();
+    submitForm(this.dataset.month, selectedYear);
+  };
+
+  const rebuildURL = (month, year) => {
+    let url = formElement.getAttribute("action");
+    let newUrl = "";
+    let components = url.split("/")
+
+    components[components.length-1] = parseInt(month);
+    components[components.length-2] = parseInt(year);
+    for (let i=0; i < components.length; i++) {
+      if(i < components.length-1) {
+        newUrl += components[i] + "/";
+      } else {
+        newUrl += components[i];
+      }
+    }
+    return newUrl;
+  };
+
+  const submitForm = async (month, year) => {
+    const newUrl = rebuildURL(month, year);
+    formElement.action = newUrl;
+    formElement.submit();
+  }
+
+
+  window.onload = (e) => {
+    url = formElement.dataset.url;
+    selectedMonth = formElement.dataset.selectedMonth;
+    selectedYear = parseInt(formElement.dataset.selectedYear);
+    activeMonth = monthButtons[parseInt(selectedMonth)-1];
+    activeMonth.classList.add("active");
+  };
+</script>
 {% endblock %}

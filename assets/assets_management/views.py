@@ -9,6 +9,7 @@ from django.http import FileResponse
 from django.views import View
 
 from .models import Asset, GeneralExpense, Expense, Income, Report
+from management.util import get_month_name
 from .util import (
     fill_up_missing_months,
     consolidate,
@@ -22,6 +23,10 @@ from .util import (
 
 
 class AllTimeReportView(LoginRequiredMixin, View):
+    """All incomes and expenses for an asset since the beginning."""
+
+    login_url = "/login/"
+
     def get(self, request):
         assets = Asset.objects.all()
         metadata = {}
@@ -63,40 +68,90 @@ class AllTimeReportView(LoginRequiredMixin, View):
         )
 
 
-def month_report(request, year, month):
-    if not request.user.is_authenticated:
-        return redirect("/login")
+class MonthReportView(LoginRequiredMixin, View):
+    """All incomes, expenses and general expenses within a month."""
 
-    general_expenses = GeneralExpense.objects.filter(date__year=year, date__month=month)
-    assets_expenses = Expense.objects.filter(
-        date__year=year, date__month=month
-    ).order_by("asset_id", "value")
-    assets_incomes = Income.objects.filter(date__year=year, date__month=month).order_by(
-        "asset_id", "value"
-    )
+    login_url = "/login/"
+    years = list(Income.objects.values_list("date__year", flat=True).distinct())
+    months = [{"number": i, "name": get_month_name(i)[0]} for i in range(1, 13)]
 
-    tin = assets_incomes.aggregate(total=Sum("value"))
-    tge = general_expenses.aggregate(total=Sum("value"))
-    tae = assets_expenses.aggregate(total=Sum("value"))
+    def get(self, request, year, month):
+        print(year, month)
+        general_expenses = GeneralExpense.objects.filter(
+            date__year=year, date__month=month
+        )
 
-    tex = calculate_expenses_totals(tge["total"], tae["total"])
-    bal = calculate_balance(tin["total"], tex)
+        assets_expenses = Expense.objects.filter(
+            date__year=year, date__month=month
+        ).order_by("asset_id", "value")
 
-    ctx = {
-        "date": datetime.date(year, month, 1),
-        "aex": assets_expenses,
-        "gex": general_expenses,
-        "inc": assets_incomes,
-        "tge": tge["total"],
-        "tae": tae["total"],
-        "tin": tin["total"] if tin["total"] else 0,
-        "tex": tex,
-        "bal": bal,
-    }
-    return render(request, "report/month.html", ctx)
+        assets_incomes = Income.objects.filter(
+            date__year=year, date__month=month
+        ).order_by("asset_id", "value")
+
+        tin = assets_incomes.aggregate(total=Sum("value"))
+        tge = general_expenses.aggregate(total=Sum("value"))
+        tae = assets_expenses.aggregate(total=Sum("value"))
+        tex = calculate_expenses_totals(tge["total"], tae["total"])
+        bal = calculate_balance(tin["total"], tex)
+
+        ctx = {
+            "months": self.months,
+            "years": self.years,
+            "date": datetime.date(year, month, 1),
+            "aex": assets_expenses,
+            "gex": general_expenses,
+            "inc": assets_incomes,
+            "tge": tge["total"],
+            "tae": tae["total"],
+            "tin": tin["total"] if tin["total"] else 0,
+            "tex": tex,
+            "bal": bal,
+        }
+
+        return render(request, "report/month.html", ctx)
+
+    def post(self, request, year, month):
+        print(year)
+        print(month)
+        general_expenses = GeneralExpense.objects.filter(
+            date__year=year, date__month=month
+        )
+
+        assets_expenses = Expense.objects.filter(
+            date__year=year, date__month=month
+        ).order_by("asset_id", "value")
+
+        assets_incomes = Income.objects.filter(
+            date__year=year, date__month=month
+        ).order_by("asset_id", "value")
+
+        tin = assets_incomes.aggregate(total=Sum("value"))
+        tge = general_expenses.aggregate(total=Sum("value"))
+        tae = assets_expenses.aggregate(total=Sum("value"))
+        tex = calculate_expenses_totals(tge["total"], tae["total"])
+        bal = calculate_balance(tin["total"], tex)
+
+        ctx = {
+            "months": self.months,
+            "years": self.years,
+            "date": datetime.date(year, month, 1),
+            "aex": assets_expenses,
+            "gex": general_expenses,
+            "inc": assets_incomes,
+            "tge": tge["total"],
+            "tae": tae["total"],
+            "tin": tin["total"] if tin["total"] else 0,
+            "tex": tex,
+            "bal": bal,
+        }
+
+        return render(request, "report/month.html", ctx)
 
 
 class AnnualReportView(LoginRequiredMixin, View):
+
+    login_url = "/login/"
 
     def get(self, request):
         initial_year = 2022

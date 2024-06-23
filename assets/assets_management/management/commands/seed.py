@@ -25,15 +25,47 @@ class Command(BaseCommand):
             Address.objects.create(**address)
 
         assets = [
-            {"name": "Casa João Balbi", "address": Address.objects.get(pk=1)},
-            {"name": "Sala Village (306)", "address": Address.objects.get(pk=2)},
-            {"name": "Sala Village (304)", "address": Address.objects.get(pk=2)},
-            {"name": "Dijon", "address": Address.objects.get(pk=2)},
-            {"name": "Rio de Janeiro", "address": Address.objects.get(pk=2)},
-            {"name": "3 de Maio", "address": Address.objects.get(pk=2)},
-            {"name": "Alcindo Cacela", "address": Address.objects.get(pk=2)},
-            {"name": "Garagem", "address": Address.objects.get(pk=3)},
-            {"name": "Garagem Altos", "address": Address.objects.get(pk=3)},
+            {
+                "name": "Casa João Balbi",
+                "address": Address.objects.get(pk=1),
+                "slug": "joao-balbi",
+            },
+            {
+                "name": "Sala Village (306)",
+                "address": Address.objects.get(pk=2),
+                "slug": "village-306",
+            },
+            {
+                "name": "Sala Village (304)",
+                "address": Address.objects.get(pk=2),
+                "slug": "village-304",
+            },
+            {"name": "Dijon", "address": Address.objects.get(pk=2), "slug": "dijon"},
+            {
+                "name": "Rio de Janeiro",
+                "address": Address.objects.get(pk=2),
+                "slug": "rio-de-janeiro",
+            },
+            {
+                "name": "3 de Maio",
+                "address": Address.objects.get(pk=2),
+                "slug": "tres-de-maio",
+            },
+            {
+                "name": "Alcindo Cacela",
+                "address": Address.objects.get(pk=2),
+                "slug": "alcindo-cacela",
+            },
+            {
+                "name": "Garagem",
+                "address": Address.objects.get(pk=3),
+                "slug": "garagem-baixos",
+            },
+            {
+                "name": "Garagem Altos",
+                "address": Address.objects.get(pk=3),
+                "slug": "garagem-altos",
+            },
         ]
 
         for asset in assets:
