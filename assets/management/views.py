@@ -128,6 +128,19 @@ class AssetConsumerUnityView(LoginRequiredMixin, View):
 class AssetArchiveCreateView(LoginRequiredMixin, View):
     login_url = "/login/"
 
+    def get(self, request):
+        assets = Asset.objects.all()
+
+        selected_asset = request.GET.get("asset", None)
+        if selected_asset:
+            selected_asset = Asset.objects.get(pk=selected_asset)
+        else:
+            selected_asset = assets[0]
+
+        ctx = {"assets": assets , "selected_asset": selected_asset}
+
+        return render(request, "archive/index.html", ctx)
+
     def post(self, request):
         status = 500
         msg = "Algo de errado aconteceu"

@@ -1,0 +1,55 @@
+{% extends "management_base.html" %} {% load static %} {% block subcontent %}
+<div class="container">
+
+  <div class="py-5">
+    <div class="card">
+      <div class="card-header" style="text-align: center">Imóvel</div>
+      <div class="card-body">
+        <form id="asset-form" action="{% url 'management:asset-archive' %}">
+          {% csrf_token %}
+          <select
+            id="asset"
+            data-url="{% url 'management:asset' %}"
+            name="asset"
+            class="form-select"
+            aria-label="select"
+            style="text-align: center"
+          >
+            {% for asset in assets %}
+                {% if selected_asset.id == asset.id %}
+                <option value="{{asset.id}}" selected>{{asset}}</option>
+                {% else %}
+                <option value="{{asset.id}}">{{asset}}</option>
+                {% endif %} {% endfor %}
+          </select>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="container px-4" style="display: flex; flex-flow: row wrap; justify-content: center;">
+    {% for archive in selected_asset.archives.all %}
+        {% if archive.file_type == 'image' %}
+        <!-- <a href="{{archive.file.url}}">
+            <img class="img-thumbnail image-thumbnail" src="{{archive.file.url}}" alt="">
+        </a> -->
+
+        {% else %}
+        <video class="img-thumbnail video-thumbnail" controls preload="metadata">
+            <source src="{{archive.file.url}}#t=7" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  const assetForm = document.getElementById("asset-form");
+  const assetSelect = document.getElementById("asset");
+
+  assetSelect.addEventListener("change", (evenet) => {
+    assetForm.submit();
+  });
+</script>
+{% endblock subcontent %}

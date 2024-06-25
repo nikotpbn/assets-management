@@ -59,3 +59,16 @@
   background-color: white;
   color: #212529;
 }
+
+.video-thumbnail {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+}
+
+.image-thumbnail {
+  height: 150px;
+  width: 150px;
+  /* width: 123.6px; */
+  object-fit: cover;
+}

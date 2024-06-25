@@ -26,9 +26,9 @@ urlpatterns = [
         name="asset-expense-create",
     ),
     path(
-        "asset/archive/create/",
+        "asset/archive/",
         AssetArchiveCreateView.as_view(),
-        name="asset-archive-create",
+        name="asset-archive",
     ),
     path(
         "report/create/", AssetAnnualReportCreateView.as_view(), name="create-report"
