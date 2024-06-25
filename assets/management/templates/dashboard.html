@@ -2,8 +2,25 @@
 {% load static %}
 
 {% block subcontent %}
-<div class="annual-income" data-labels="{{labels}}" data-data="{{data}} ">
-  <canvas id="myChart"></canvas>
+<div class="container">
+
+  <div class="chart-container" style="padding: 0 10rem;">
+    <select name="month" class="form-control" id="monthly-income-select">
+      {% for year in years %}
+      <option value="{{year}}">{{year}}</option>
+      {% endfor %}
+    </select>
+    <div id="monthly-income" data-url="{% url 'management:monthly-income' %}" data-current-year="{{current_year}}">
+      <canvas id="monthly-income-canvas"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-container" style="padding: 0 10rem;">
+    <div class="annual-income" data-labels="{{labels}}" data-data="{{data}} ">
+      <canvas id="myChart"></canvas>
+    </div>
+  </div>
+
 </div>
 
 <script type="module" src="{% static 'js/dashboard.js' %}"></script>

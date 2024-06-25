@@ -11,7 +11,7 @@ import decimal
 import datetime
 
 from .forms import AssetEditAndCreateForm
-from .util import customPdf
+from .util import customPdf, get_month_name
 
 from assets_management.util import fill_up_missing_months
 from assets_management.models import (
@@ -28,6 +28,33 @@ def decimal_serializer(obj):
     if isinstance(obj, decimal.Decimal):
         return str(obj)
     raise TypeError("Type not serializable")
+
+
+class MonthlyIncomeData(View):
+    months = [{"number": i, "name": get_month_name(i)[0]} for i in range(1, 13)]
+    labels = [get_month_name(i)[0] for i in range(1, 13)]
+
+    def post(self, request):
+        data = json.loads(request.body)
+        print(data)
+
+        qs = (
+            Income.objects.filter(date__year=data['year'])
+            .order_by("id")
+            .values("date__month")
+            .annotate(total=Sum("value"))
+            .order_by()
+        )
+
+        incomes = fill_up_missing_months(qs)
+        values = [ str(income['total']) for income in incomes ]
+
+        ctx = {
+            "labels": self.labels,
+            "values": values
+        }
+
+        return JsonResponse(ctx)
 
 
 class Dashboard(LoginRequiredMixin, View):
@@ -54,6 +81,8 @@ class Dashboard(LoginRequiredMixin, View):
             {
                 "labels": json.dumps(labels),
                 "data": json.dumps(data, default=decimal_serializer),
+                "years": years,
+                "current_year": datetime.datetime.now().year
             },
         )
 
@@ -137,7 +166,7 @@ class AssetArchiveCreateView(LoginRequiredMixin, View):
         else:
             selected_asset = assets[0]
 
-        ctx = {"assets": assets , "selected_asset": selected_asset}
+        ctx = {"assets": assets, "selected_asset": selected_asset}
 
         return render(request, "archive/index.html", ctx)
 
