@@ -7,8 +7,7 @@ services:
     ports:
       - 8000:8000
     command: >
-      sh -c "python manage.py wait_for_db &&
-             python manage.py runserver 0.0.0.0:8000"
+      sh -c "python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./assets:/assets
     secrets:
@@ -29,6 +28,10 @@ services:
       AWS_BUCKET_NAME: /run/secrets/aws_bucket_name
       SENDGRID_API_KEY: /run/secrets/sendgrid_api_key
       DEBUG: 1
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
 
   db:
     image: mysql:8.0
@@ -46,6 +49,10 @@ services:
       - MYSQL_PASSWORD_FILE=/run/secrets/db_user_password
     ports:
       - 3306:3306
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 7s
+      retries: 10
 
 
 volumes:

@@ -1,4 +1,4 @@
-import { showBackdrop, hideBackdrop } from "/static/js/backdrop.js";
+import { showBackdrop, hideBackdrop, showBackdropSpinner, hideBackdropSpinner } from "/static/js/backdrop.js";
 import {
   getCookie,
   sendRequest,
@@ -22,9 +22,10 @@ createReportButtons.forEach((element) => {
 const createReport = async (year, mode) => {
   const url = reportContainer.dataset.createReportUrl;
   const data = { year, mode };
-
   showBackdrop();
+  showBackdropSpinner();
   const response = await sendRequest(url, "POST", headers, data);
+  hideBackdropSpinner();
   hideBackdrop();
   displayToastCustomMessage(response.message, response.status);
 

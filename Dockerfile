@@ -15,7 +15,7 @@ RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip && \
     apk add --update --no-cache --virtual .tmp-build-deps \
         gcc musl-dev linux-headers python3-dev && \
-    apk add --update --no-cache mariadb-dev jpeg-dev && \
+    apk add --update --no-cache mariadb-dev jpeg-dev ffmpeg-dev && \
     /py/bin/pip install -r /tmp/requirements.txt && \
     if [ $DEV = "true" ]; \
         then /py/bin/pip install -r /tmp/requirements.dev.txt ; \

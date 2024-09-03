@@ -21,8 +21,13 @@ class Command(BaseCommand):
             try:
                 self.check(databases=['default'])
                 db_up = True
-            except (MySQLOperationalError, OperationalError):
+            except MySQLOperationalError as error:
                 self.stdout.write('Database unavailable, waiting 2 second...')
+                self.stdout.write(f'MySQLOperationalError: {error}')
+                time.sleep(2)
+            except OperationalError as error:
+                self.stdout.write('Database unavailable, waiting 2 second...')
+                self.stdout.write(f'DjangoOperatinalError: {error}')
                 time.sleep(2)
 
         self.stdout.write(self.style.SUCCESS('Database available!'))

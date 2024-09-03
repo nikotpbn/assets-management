@@ -91,15 +91,15 @@
 }
 
 .btn-custom-energy {
-  border: 1px solid #CCCC00;
-  color: #CCCC00;
+  border: 1px solid #cccc00;
+  color: #cccc00;
 }
 
 .btn-custom-energy:hover,
 .btn-custom-energy.active {
-  border: 1px solid #CCCC00;
+  border: 1px solid #cccc00;
   color: white;
-  background-color: #CCCC00;
+  background-color: #cccc00;
 }
 
 .btn-custom-gas {
@@ -113,7 +113,6 @@
   color: white;
   background-color: #dc3545;
 }
-
 
 .income-card:hover svg,
 .expense-card:hover svg {
@@ -153,4 +152,27 @@ input[type="file"] {
 
 .invalid {
   border: 1px solid red;
+}
+
+.modal-container {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+  background: none;
+  width: 100%;
+}
+
+.modal-container--division {
+  display: flex;
+  flex-flow: column;
+  width: 45%;
+  min-width: 400px;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.modal-container--division__image {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
 }

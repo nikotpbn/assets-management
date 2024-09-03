@@ -1,23 +1,69 @@
 const csrftoken = getCookie("csrftoken");
 
-const labels = document.querySelector(".annual-income").dataset.labels;
-const data = document.querySelector(".annual-income").dataset.data;
-const ctx = document.getElementById("myChart");
+const currentYear =
+  document.getElementById("monthly-income").dataset.currentYear;
 
-const currentYear = document.getElementById("monthly-income").dataset.currentYear;
+const annualIncomeUrl = document.getElementById("annual-income").dataset.url;
+const annualIncomeCanvas = document.getElementById("annual-income-canvas");
 
+let monthlyIncomeChart;
 const monthlyIncomeUrl = document.getElementById("monthly-income").dataset.url;
 const monthlyIncomeCanvas = document.getElementById("monthly-income-canvas");
 const monthlyIncomeSelect = document.getElementById("monthly-income-select");
-let monthlyIncomeChart;
+monthlyIncomeSelect.addEventListener("change", monthlyIncomeChartHandler);
 
-monthlyIncomeSelect.addEventListener("change", chartHandler);
+updateAnnualIncomeChart();
+updateMonthlyIncomeChart(currentYear);
 
-function chartHandler() {
+async function updateAnnualIncomeChart() {
+  const response = await fetch(annualIncomeUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+  });
+  const data = await response.json();
+  new Chart(annualIncomeCanvas, {
+    type: "bar",
+    data: {
+      labels: data.labels,
+      datasets: [
+        {
+          label: "Entrada em R$",
+          backgroundColor: "rgba(255,255,255,0.5)",
+          borderColor: "rgba(255,255,255,1)",
+          borderWidth: 2,
+          hoverBackgroundColor: "rgba(255,255,255,0.7)",
+          hoverBorderColor: "rgba(255,255,255,1)",
+          data: data.values,
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          stacked: true,
+          grid: {
+            display: true,
+            color: "rgba(255,255,255,0.2)",
+          },
+        },
+        x: {
+          grid: {
+            display: false,
+          },
+        },
+      },
+    },
+  });
+}
+
+function monthlyIncomeChartHandler() {
   monthlyIncomeChart.destroy();
   monthlyIncomeChart = null;
   updateMonthlyIncomeChart(this.value);
-};
+}
 
 async function updateMonthlyIncomeChart(year) {
   const response = await fetch(monthlyIncomeUrl, {
@@ -35,21 +81,36 @@ async function updateMonthlyIncomeChart(year) {
       datasets: [
         {
           label: "Entrada em R$",
+          backgroundColor: "rgba(255,255,255,0.5)",
+          borderColor: "rgba(255,255,255,1)",
+          borderWidth: 2,
+          hoverBackgroundColor: "rgba(255,255,255,0.7)",
+          hoverBorderColor: "rgba(255,255,255,1)",
           data: data.values,
           borderWidth: 1,
         },
       ],
     },
     options: {
+      maintainAspectRatio: false,
       scales: {
         y: {
           beginAtZero: true,
+          stacked: true,
+          grid: {
+            display: true,
+            color: "rgba(255,255,255,0.2)",
+          },
+        },
+        x: {
+          grid: {
+            display: false,
+          },
         },
       },
     },
   });
 }
-updateMonthlyIncomeChart(currentYear);
 
 function getCookie(name) {
   let cookieValue = null;
@@ -66,24 +127,3 @@ function getCookie(name) {
   }
   return cookieValue;
 }
-
-new Chart(ctx, {
-  type: "bar",
-  data: {
-    labels: JSON.parse(labels),
-    datasets: [
-      {
-        label: "Entrada em R$",
-        data: JSON.parse(data),
-        borderWidth: 1,
-      },
-    ],
-  },
-  options: {
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  },
-});

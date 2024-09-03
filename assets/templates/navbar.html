@@ -53,7 +53,7 @@
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
-            Gerenciamneto
+            Gerenciamento
           </a>
           <ul class="dropdown-menu">
             <li>
@@ -65,6 +65,12 @@
             <li>
               <a class="dropdown-item" href="{% url 'management:asset' %}"
                 >Imóvel</a
+              >
+            </li>
+            <li><hr class="dropdown-divider" /></li>
+            <li>
+              <a class="dropdown-item" href="{% url 'management:asset-archive' %}"
+                >Arquivo</a
               >
             </li>
             <li><hr class="dropdown-divider" /></li>

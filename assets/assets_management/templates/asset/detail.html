@@ -334,7 +334,8 @@
       if (element.file_type === "image") {
         str = `<img src="${element.file}" class="card-img-top" style="min-height: 190px; max-height: 12rem; object-fit: cover;" alt="">`;
       } else {
-        str = `<video class="card-img-top" height="190" controls>
+        console.log(element)
+        str = `<video class="card-img-top" height="190" controls preload="none" poster="${element.poster}">
                             <source src="${element.file}" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>`;

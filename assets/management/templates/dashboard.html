@@ -4,20 +4,26 @@
 {% block subcontent %}
 <div class="container">
 
-  <div class="chart-container" style="padding: 0 10rem;">
-    <select name="month" class="form-control" id="monthly-income-select">
-      {% for year in years %}
-      <option value="{{year}}">{{year}}</option>
-      {% endfor %}
-    </select>
-    <div id="monthly-income" data-url="{% url 'management:monthly-income' %}" data-current-year="{{current_year}}">
-      <canvas id="monthly-income-canvas"></canvas>
+  <div class="" style="padding: 2rem; border: 1px solid white; border-radius: 5px; margin-bottom: 10px;">
+    <legend style="text-align: center;">Entradas - desde o início</legend>
+    <div id="annual-income" data-url="{% url 'management:annual-income' %}" data-current-year="{{current_year}}">
+        <canvas id="annual-income-canvas" style="height: 15rem;"></canvas>
     </div>
   </div>
 
-  <div class="chart-container" style="padding: 0 10rem;">
-    <div class="annual-income" data-labels="{{labels}}" data-data="{{data}} ">
-      <canvas id="myChart"></canvas>
+  <div class="" style="padding: 2rem; border: 1px solid white; border-radius: 5px;">
+    <legend style="text-align: center;">Entradas - por ano</legend>
+    <select name="month" class="form-control" id="monthly-income-select" style="display: flex; flex-grow: 1;">
+      {% for year in years %}
+      {% if year == current_year %}
+      <option value="{{year}}" selected>{{year}}</option>
+      {% else %}
+      <option value="{{year}}">{{year}}</option>
+      {% endif %}
+      {% endfor %}
+    </select>
+    <div id="monthly-income" data-url="{% url 'management:monthly-income' %}" data-current-year="{{current_year}}">
+        <canvas id="monthly-income-canvas" style="height: 15rem;"></canvas>
     </div>
   </div>
 

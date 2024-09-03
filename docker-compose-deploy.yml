@@ -25,7 +25,9 @@ services:
       AWS_BUCKET_NAME: /run/secrets/aws_bucket_name
       SENDGRID_API_KEY: /run/secrets/sendgrid_api_key
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+        restart: true
 
   proxy:
     build: ./proxy
@@ -63,6 +65,10 @@ services:
       - MYSQL_PASSWORD_FILE=/run/secrets/db_user_password
     ports:
       - 3306:3306
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 7s
+      retries: 10
 
 volumes:
   static-data:

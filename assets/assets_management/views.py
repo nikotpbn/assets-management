@@ -258,6 +258,7 @@ def asset_detail(request, slug=None):
             "file": archive.file.url,
             "file_type": archive.file_type,
             "filename": archive.filename,
+            "poster": archive.poster.url if archive.poster else None,
         }
         for archive in asset.archives.all()
     ]

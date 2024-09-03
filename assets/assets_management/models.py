@@ -1,6 +1,13 @@
 from django.db import models
-from .validators import validate_format, check_format
+from django.core.files.base import ContentFile
+
+from PIL import Image
+
 import uuid
+import io
+import imageio.v3 as iio
+
+from .validators import validate_format, check_format
 
 
 def generate_file_name():
@@ -9,6 +16,11 @@ def generate_file_name():
 
 
 def archive_directory_path(instance, filename):
+    ext = filename.split(".")[-1].lower()
+    return f"{instance.asset.id}/archive/{uuid.uuid4()}.{ext}"
+
+
+def archive_poster_directory_path(instance, filename):
     ext = filename.split(".")[-1].lower()
     return f"{instance.asset.id}/archive/{uuid.uuid4()}.{ext}"
 
@@ -154,12 +166,28 @@ class Archive(models.Model):
     )
     file_type = models.CharField(max_length=5, choices=FILE_TYPE_CHOICES, blank=True)
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE, related_name="archives")
+    poster = models.ImageField(
+        null=True, blank=True, upload_to=archive_poster_directory_path
+    )
 
     def __str__(self):
         return self.title
 
     def save(self, *args, **kwargs):
         self.file_type = check_format(self.file.name)
+
+        if self.file_type == "video":
+            frame = iio.imread(
+                self.file,
+                index=42,
+                plugin="pyav",
+            )
+            img = Image.fromarray(frame)
+            buffer = io.BytesIO()
+            img.save(buffer, format="JPEG")
+            pillow_image = ContentFile(buffer.getvalue(), f"{uuid.uuid4()}")
+            self.poster = pillow_image
+
         return super().save()
 
     @property

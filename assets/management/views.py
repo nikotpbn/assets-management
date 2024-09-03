@@ -30,16 +30,34 @@ def decimal_serializer(obj):
     raise TypeError("Type not serializable")
 
 
+class AnnualIncomeData(View):
+    labels = list(Income.objects.values_list("date__year", flat=True).distinct())
+
+    def post(self, request):
+        qs = (
+            Income.objects.all()
+            .order_by("id")
+            .values("date__year")
+            .annotate(total=Sum("value"))
+            .order_by()
+        )
+
+        values = [str(value) for value in qs.values_list("total", flat=True)]
+
+        ctx = {"labels": self.labels, "values": values}
+
+        return JsonResponse(ctx)
+
+
 class MonthlyIncomeData(View):
     months = [{"number": i, "name": get_month_name(i)[0]} for i in range(1, 13)]
     labels = [get_month_name(i)[0] for i in range(1, 13)]
 
     def post(self, request):
         data = json.loads(request.body)
-        print(data)
 
         qs = (
-            Income.objects.filter(date__year=data['year'])
+            Income.objects.filter(date__year=data["year"])
             .order_by("id")
             .values("date__month")
             .annotate(total=Sum("value"))
@@ -47,12 +65,9 @@ class MonthlyIncomeData(View):
         )
 
         incomes = fill_up_missing_months(qs)
-        values = [ str(income['total']) for income in incomes ]
+        values = [str(income["total"]) for income in incomes]
 
-        ctx = {
-            "labels": self.labels,
-            "values": values
-        }
+        ctx = {"labels": self.labels, "values": values}
 
         return JsonResponse(ctx)
 
@@ -82,7 +97,7 @@ class Dashboard(LoginRequiredMixin, View):
                 "labels": json.dumps(labels),
                 "data": json.dumps(data, default=decimal_serializer),
                 "years": years,
-                "current_year": datetime.datetime.now().year
+                "current_year": datetime.datetime.now().year,
             },
         )
 
