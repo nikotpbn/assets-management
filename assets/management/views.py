@@ -9,6 +9,7 @@ from django.http import JsonResponse
 import json
 import decimal
 import datetime
+from itertools import chain
 
 from .forms import AssetEditAndCreateForm
 from .util import customPdf, get_month_name
@@ -30,7 +31,9 @@ def decimal_serializer(obj):
     raise TypeError("Type not serializable")
 
 
-class AnnualIncomeData(View):
+class AnnualIncomeData(LoginRequiredMixin, View):
+    login_url = "/login/"
+
     labels = list(Income.objects.values_list("date__year", flat=True).distinct())
 
     def post(self, request):
@@ -49,7 +52,9 @@ class AnnualIncomeData(View):
         return JsonResponse(ctx)
 
 
-class MonthlyIncomeData(View):
+class MonthlyIncomeData(LoginRequiredMixin, View):
+    login_url = "/login/"
+
     months = [{"number": i, "name": get_month_name(i)[0]} for i in range(1, 13)]
     labels = [get_month_name(i)[0] for i in range(1, 13)]
 
@@ -126,6 +131,7 @@ class AssetListView(LoginRequiredMixin, View):
 
 class AssetCreateView(LoginRequiredMixin, View):
     login_url = "/login/"
+
     form = AssetEditAndCreateForm
 
     def get(self, request):
@@ -265,7 +271,9 @@ class AssetExpenseCreateView(LoginRequiredMixin, View):
         return JsonResponse({"message": msg, "status": status})
 
 
-class AssetAnnualReportCreateView(View):
+class AssetAnnualReportCreateView(LoginRequiredMixin, View):
+    login_url = "/login/"
+
     def get(self, request):
         years = list(Income.objects.values_list("date__year", flat=True).distinct())
         reports = {}
@@ -329,3 +337,17 @@ class AssetAnnualReportCreateView(View):
             print(f"Algo de errado aconteceu: {e}")
 
         return JsonResponse({"message": msg, "status": status})
+
+
+class AssetFlowView(LoginRequiredMixin, View):
+    login_url = "/login/"
+
+    def get(self, request):
+        selected_asset = Asset.objects.get(pk=1)
+        incomes = selected_asset.incomes.all()
+        expenses = selected_asset.expenses.all()
+        flow = list(chain(incomes, expenses))
+        flow.sort(key=lambda x: x.date)
+        assets = Asset.objects.all()
+        ctx = {"asset": selected_asset, "assets": assets, "flow": flow}
+        return render(request, "flow/index.html", ctx)

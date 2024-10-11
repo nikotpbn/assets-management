@@ -7,7 +7,8 @@ from management.views import (
     AssetArchiveCreateView,
     AssetAnnualReportCreateView,
     MonthlyIncomeData,
-    AnnualIncomeData
+    AnnualIncomeData,
+    AssetFlowView
 )
 from django.urls import path
 
@@ -37,4 +38,5 @@ urlpatterns = [
     ),
     path("monthly/income/", MonthlyIncomeData.as_view(), name="monthly-income"),
     path("annual/income/", AnnualIncomeData.as_view(), name="annual-income"),
+    path("asset/flow/", AssetFlowView.as_view(), name="asset-flow"),
 ]
