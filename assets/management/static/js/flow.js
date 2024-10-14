@@ -5,7 +5,6 @@ import {
 } from "/static/js/util.js";
 
 const headers = {
-  "Content-Type": "application/json",
   "X-CSRFToken": getCookie("csrftoken"),
 };
 
@@ -21,6 +20,8 @@ const flowValueInputElement = document.getElementById("flow-value-input");
 const modalTitle = document.querySelector(".modal-title");
 const modalBodyText = document.querySelector(".modal-body-text");
 const modalBodyTextAreaInput = document.querySelector(".modal-body-textarea");
+const modalFileInput = document.querySelector("#modal-file-upload");
+const modalFileLabel = document.querySelector(".selected-file");
 const modalSaveButton = document.querySelector(".modal-save");
 const modalDismissButtons = document.querySelectorAll(".modal-dismiss");
 
@@ -31,9 +32,38 @@ let data = {};
 let url = "";
 
 const saveFlow = async () => {
-  let response = await sendRequest(url, "POST", headers, data);
-  displayToastCustomMessage(response.message, response.status);
+  const formData = new FormData();
+  const file = modalFileInput.files[0];
+
+  if (file) {
+    formData.append("document", file);
+  }
+  for (const key in data) {
+    formData.append(key, data[key]);
+  }
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+    displayToastCustomMessage(data.message, response.status);
+
+  } catch (error) {
+    console.log(error.message);
+  }
 };
+
+modalFileInput.addEventListener("change", (event) => {
+  const file = event.target.files[0];
+  const [name, ext] = file.name.split(".");
+  modalFileLabel.innerHTML = name
+});
 
 modalSaveButton.addEventListener("click", () => {
   if (data.flow === "expense") {

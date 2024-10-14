@@ -214,55 +214,56 @@ class AssetIncomeCreateView(LoginRequiredMixin, View):
     login_url = "/login/"
 
     def post(self, request):
-        data = json.loads(request.body)
-        value = data["value"].replace(".", "").replace(",", ".")
-        year, month, day = data["date"].split("-")
-        asset = Asset.objects.get(pk=data["asset_id"])
+        document = request.FILES.get("document", None)
+        value = request.POST["value"].replace(".", "").replace(",", ".")
+        year, month, day = request.POST["date"].split("-")
+        asset = Asset.objects.get(pk=request.POST["asset_id"])
         validated_data = {
             "value": decimal.Decimal(value),
             "date": datetime.date(int(year), int(month), int(day)),
             "asset": asset,
         }
+        if document:
+            validated_data.update({"document": document})
+
         income = Income.objects.create(**validated_data)
 
         if income:
             msg = "Criada entrada no valor de R$ {} para o imóvel {}".format(
-                data["value"], asset.name
+                request.POST["value"], asset.name
             )
-            status = 200
         else:
             msg = "Algo de errado aconteceu"
-            status = 500
 
-        return JsonResponse({"message": msg, "status": status})
+        return JsonResponse({"message": msg})
 
 
 class AssetExpenseCreateView(LoginRequiredMixin, View):
     login_url = "/login/"
 
     def post(self, request):
-        data = json.loads(request.body)
-        value = data["value"].replace(".", "").replace(",", ".")
-        year, month, day = data["date"].split("-")
-        asset = Asset.objects.get(pk=data["asset_id"])
+        document = request.FILES.get("document", None)
+        value = request.POST["value"].replace(".", "").replace(",", ".")
+        year, month, day = request.POST["date"].split("-")
+        asset = Asset.objects.get(pk=request.POST["asset_id"])
         validated_data = {
             "value": decimal.Decimal(value),
             "date": datetime.date(int(year), int(month), int(day)),
-            "description": data["description"],
             "asset": asset,
         }
+        if document:
+            validated_data.update({"document": document})
+
         expense = Expense.objects.create(**validated_data)
 
         if expense:
             msg = "Criada saída no valor de R$ {} para o imóvel {}".format(
-                data["value"], asset.name
+                request.POST["value"], asset.name
             )
-            status = 200
         else:
             msg = "Algo de errado aconteceu"
-            status = 500
 
-        return JsonResponse({"message": msg, "status": status})
+        return JsonResponse({"message": msg})
 
 
 class AssetAnnualReportCreateView(View):
