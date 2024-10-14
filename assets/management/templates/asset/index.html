@@ -154,6 +154,13 @@
         <div class="modal-body">
           <p class="modal-body-text"></p>
           <textarea class="form-control modal-body-textarea" name="description" id="description" rows="4"></textarea>
+          <div style="display: flex; margin-top: 1rem; align-items: center; justify-content: space-evenly;">
+            <label for="modal-file-upload" class="custom-file-upload">
+              <i style="height: 10rem;" class="bi bi-cloud-upload-fill"></i>
+            </label>
+            <input id="modal-file-upload" type="file" />
+            <span class="selected-file">Anexar um arquivo...</span>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary modal-dismiss" data-bs-dismiss="modal">Cancelar</button>
