@@ -1,0 +1,88 @@
+{% extends "management_base.html" %}
+{% load management_extras %}
+{% load static%}
+{% block subcontent %}
+<div class="container">
+  <div class="message" data-message="{{message}}"></div>
+  <div class="py-5">
+    <div class="card">
+      <div class="card-header" style="text-align: center">Imóvel</div>
+      <div class="card-body">
+        <form
+          id="asset-form"
+          action="{% url 'management:asset-flow' %}"
+          method="GET"
+        >
+          {% csrf_token %}
+          <select
+            id="asset"
+            name="slug"
+            class="form-select"
+            aria-label="select"
+            style="text-align: center"
+          >
+            {% for asset in assets %} {% if selected_asset.id == asset.id %}
+            <option value="{{asset.slug}}" selected>{{asset}}</option>
+            {% else %}
+            <option value="{{asset.slug}}">{{asset}}</option>
+            {% endif %} {% endfor %}
+          </select>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="pb-5 table-responsive">
+    <table class="table flow-table">
+        <thead>
+          <tr>
+            <th scope="col">Data</th>
+            <th scope="col">Valor</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for action in flow %}
+          <tr>
+            <td>{{action.date}}</td>
+            <td class="{% if action|classname == 'Income' %}income{% else %}expense{% endif %}">{{action.value}}</td>
+            <td>
+              {% with flow=action|classname %}
+              <form class="delete-form" action="{% url 'management:delete-flow' selected_asset.slug action.id action|classname%}" method="POST">
+                {% csrf_token %}
+                <button
+                  class="delete-form-button btn btn-outline-danger"
+                  data-value="{{action.value}}"
+                  data-date="{{action.date}}"
+                  data-flow="{{action.flow}}"
+                  >Remover</button>
+              </form>
+              {% endwith %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+  </div>
+
+  <div class="modal delete-modal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"></h5>
+          <button type="button" class="btn-close delete-modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Modal body text goes here.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary modal-submit">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script type="module" src="{% static 'js/flow-list.js' %}"></script>
+{% endblock subcontent %}

@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
 from django.views import View
@@ -9,6 +10,7 @@ from django.http import JsonResponse
 import json
 import decimal
 import datetime
+from itertools import chain
 
 from .forms import AssetEditAndCreateForm
 from .util import customPdf, get_month_name
@@ -30,7 +32,9 @@ def decimal_serializer(obj):
     raise TypeError("Type not serializable")
 
 
-class AnnualIncomeData(View):
+class AnnualIncomeData(LoginRequiredMixin, View):
+    login_url = "/login/"
+
     labels = list(Income.objects.values_list("date__year", flat=True).distinct())
 
     def post(self, request):
@@ -49,7 +53,9 @@ class AnnualIncomeData(View):
         return JsonResponse(ctx)
 
 
-class MonthlyIncomeData(View):
+class MonthlyIncomeData(LoginRequiredMixin, View):
+    login_url = "/login/"
+
     months = [{"number": i, "name": get_month_name(i)[0]} for i in range(1, 13)]
     labels = [get_month_name(i)[0] for i in range(1, 13)]
 
@@ -126,6 +132,7 @@ class AssetListView(LoginRequiredMixin, View):
 
 class AssetCreateView(LoginRequiredMixin, View):
     login_url = "/login/"
+
     form = AssetEditAndCreateForm
 
     def get(self, request):
@@ -266,7 +273,9 @@ class AssetExpenseCreateView(LoginRequiredMixin, View):
         return JsonResponse({"message": msg})
 
 
-class AssetAnnualReportCreateView(View):
+class AssetAnnualReportCreateView(LoginRequiredMixin, View):
+    login_url = "/login/"
+
     def get(self, request):
         years = list(Income.objects.values_list("date__year", flat=True).distinct())
         reports = {}
@@ -324,9 +333,47 @@ class AssetAnnualReportCreateView(View):
                 msg = "Foi criada uma nova versão do relatório"
             elif mode == "new":
                 msg = "O relatório foi criado com sucesso"
-            status = 200
 
         except Exception as e:
             print(f"Algo de errado aconteceu: {e}")
 
-        return JsonResponse({"message": msg, "status": status})
+        return JsonResponse({"message": msg})
+
+
+class AssetFlowView(LoginRequiredMixin, View):
+    login_url = "/login/"
+
+    def get(self, request):
+        slug = request.GET.get("slug", None)
+        message = request.GET.get("message", None)
+
+        if slug:
+            selected_asset = Asset.objects.get(slug=slug)
+        else:
+            selected_asset = Asset.objects.get(pk=1)
+
+        incomes = Income.objects.filter(asset=selected_asset)
+        expenses = Expense.objects.filter(asset=selected_asset)
+        flow = list(chain(incomes, expenses))
+        flow.sort(reverse=True, key=lambda x: x.date)
+        assets = Asset.objects.all()
+        ctx = {
+            "selected_asset": selected_asset,
+            "assets": assets,
+            "flow": flow,
+            "message": message if message else None,
+        }
+        return render(request, "flow/index.html", ctx)
+
+
+class AssetFlowDeleteView(LoginRequiredMixin, View):
+    login_url = "/login/"
+
+    def post(self, request, slug, flow_id, flow):
+        if flow == "Income":
+            Income.objects.get(pk=flow_id).delete()
+        else:
+            Expense.objects.get(pk=flow_id).delete()
+
+        message = "A entrada / saída foi removida com sucesso."
+        return redirect(reverse("management:asset-flow") + f"?slug={slug}&message={message}")

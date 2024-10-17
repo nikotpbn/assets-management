@@ -1,0 +1,11 @@
+.income {
+  color: green !important;
+}
+
+.expense {
+  color: #dc3545 !important;
+}
+
+.table-responsive {
+  max-height: 500px;
+}
