@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
 from django.views import View
@@ -331,23 +332,47 @@ class AssetAnnualReportCreateView(LoginRequiredMixin, View):
                 msg = "Foi criada uma nova versão do relatório"
             elif mode == "new":
                 msg = "O relatório foi criado com sucesso"
-            status = 200
 
         except Exception as e:
             print(f"Algo de errado aconteceu: {e}")
 
-        return JsonResponse({"message": msg, "status": status})
+        return JsonResponse({"message": msg})
 
 
 class AssetFlowView(LoginRequiredMixin, View):
     login_url = "/login/"
 
     def get(self, request):
-        selected_asset = Asset.objects.get(pk=1)
-        incomes = selected_asset.incomes.all()
-        expenses = selected_asset.expenses.all()
+        slug = request.GET.get("slug", None)
+        message = request.GET.get("message", None)
+
+        if slug:
+            selected_asset = Asset.objects.get(slug=slug)
+        else:
+            selected_asset = Asset.objects.get(pk=1)
+
+        incomes = Income.objects.filter(asset=selected_asset)
+        expenses = Expense.objects.filter(asset=selected_asset)
         flow = list(chain(incomes, expenses))
-        flow.sort(key=lambda x: x.date)
+        flow.sort(reverse=True, key=lambda x: x.date)
         assets = Asset.objects.all()
-        ctx = {"asset": selected_asset, "assets": assets, "flow": flow}
+        ctx = {
+            "selected_asset": selected_asset,
+            "assets": assets,
+            "flow": flow,
+            "message": message if message else None,
+        }
         return render(request, "flow/index.html", ctx)
+
+
+class AssetFlowDeleteView(LoginRequiredMixin, View):
+    login_url = "/login/"
+
+    def post(self, request, slug, flow_id, flow):
+        if flow == "Income":
+            Income.objects.get(pk=flow_id).delete()
+        else:
+            Expense.objects.get(pk=flow_id).delete()
+
+        message = "A entrada / saída foi removida com sucesso."
+        return redirect(reverse("management:asset-flow") + f"?slug={slug}&message={message}")

@@ -6,12 +6,6 @@
   color: #dc3545 !important;
 }
 
-.delete-button {
-  background-color: #dc3545;
-  border: none;
-  border-radius: 5px;
-}
-
 .table-responsive {
   max-height: 500px;
 }

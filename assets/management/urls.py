@@ -8,7 +8,8 @@ from management.views import (
     AssetAnnualReportCreateView,
     MonthlyIncomeData,
     AnnualIncomeData,
-    AssetFlowView
+    AssetFlowView,
+    AssetFlowDeleteView
 )
 from django.urls import path
 
@@ -39,4 +40,5 @@ urlpatterns = [
     path("monthly/income/", MonthlyIncomeData.as_view(), name="monthly-income"),
     path("annual/income/", AnnualIncomeData.as_view(), name="annual-income"),
     path("asset/flow/", AssetFlowView.as_view(), name="asset-flow"),
+    path("<slug:slug>/flow/delete/<int:flow_id>/<str:flow>/", AssetFlowDeleteView.as_view(), name="delete-flow"),
 ]

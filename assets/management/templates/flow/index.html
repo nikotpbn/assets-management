@@ -3,6 +3,7 @@
 {% load static%}
 {% block subcontent %}
 <div class="container">
+  <div class="message" data-message="{{message}}"></div>
   <div class="py-5">
     <div class="card">
       <div class="card-header" style="text-align: center">Imóvel</div>
@@ -10,20 +11,20 @@
         <form
           id="asset-form"
           action="{% url 'management:asset-flow' %}"
-          method="POST"
+          method="GET"
         >
           {% csrf_token %}
           <select
             id="asset"
-            name="asset"
+            name="slug"
             class="form-select"
             aria-label="select"
             style="text-align: center"
           >
             {% for asset in assets %} {% if selected_asset.id == asset.id %}
-            <option value="{{asset.id}}" selected>{{asset}}</option>
+            <option value="{{asset.slug}}" selected>{{asset}}</option>
             {% else %}
-            <option value="{{asset.id}}">{{asset}}</option>
+            <option value="{{asset.slug}}">{{asset}}</option>
             {% endif %} {% endfor %}
           </select>
         </form>
@@ -32,7 +33,7 @@
   </div>
 
   <div class="pb-5 table-responsive">
-    <table class="table">
+    <table class="table flow-table">
         <thead>
           <tr>
             <th scope="col">Data</th>
@@ -46,15 +47,17 @@
             <td>{{action.date}}</td>
             <td class="{% if action|classname == 'Income' %}income{% else %}expense{% endif %}">{{action.value}}</td>
             <td>
+              {% with flow=action|classname %}
+              <form class="delete-form" action="{% url 'management:delete-flow' selected_asset.slug action.id action|classname%}" method="POST">
+                {% csrf_token %}
                 <button
-                  class="delete-button"
-                  data-id="{{action.id}}"
-                  data-date="{{action.date}}"
+                  class="delete-form-button btn btn-outline-danger"
                   data-value="{{action.value}}"
-                  data-flow="{{action|classname}}"
-                  >
-                    Remover
-                </button>
+                  data-date="{{action.date}}"
+                  data-flow="{{action.flow}}"
+                  >Remover</button>
+              </form>
+              {% endwith %}
             </td>
           </tr>
           {% endfor %}
@@ -67,7 +70,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close delete-modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <p>Modal body text goes here.</p>
