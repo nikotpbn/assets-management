@@ -369,11 +369,14 @@ class AssetFlowView(LoginRequiredMixin, View):
 class AssetFlowDeleteView(LoginRequiredMixin, View):
     login_url = "/login/"
 
-    def post(self, request, slug, flow_id, flow):
-        if flow == "Income":
-            Income.objects.get(pk=flow_id).delete()
+    def post(self, request, slug, flow_id, action):
+        if action == "Income":
+            flow = Income.objects.get(pk=flow_id)
         else:
-            Expense.objects.get(pk=flow_id).delete()
+            flow = Expense.objects.get(pk=flow_id)
+
+        flow.document.delete()
+        flow.delete()
 
         message = "A entrada / saída foi removida com sucesso."
         return redirect(reverse("management:asset-flow") + f"?slug={slug}&message={message}")
