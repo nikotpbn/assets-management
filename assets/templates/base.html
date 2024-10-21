@@ -41,16 +41,16 @@
         />
       </svg>
 
-      <div class="spinner-border backdrop-spinner" role="status">
-        <span class="sr-only"></span>
+      <div class="custom-modal">
+        <img
+          class="modal-image"
+          src=""
+          alt="An image goes here"
+        />
+        <video class="modal-video" controls muted preload="metadata">
+          Your browser does not support the video tag.
+        </video>
       </div>
-
-      <video  id="modal-video" controls muted preload="metadata">
-        Your browser does not support the video tag.
-      </video>
-
-      <img id="backdrop-image" src="" alt="">
-
     </div>
 
     <header>{% block header %} {% endblock %}</header>

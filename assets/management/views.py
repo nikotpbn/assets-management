@@ -182,9 +182,10 @@ class AssetArchiveCreateView(LoginRequiredMixin, View):
     def get(self, request):
         assets = Asset.objects.all()
 
-        selected_asset = request.GET.get("asset", None)
-        if selected_asset:
-            selected_asset = Asset.objects.get(pk=selected_asset)
+        slug = request.GET.get("slug", None)
+
+        if slug:
+            selected_asset = Asset.objects.get(slug=slug)
         else:
             selected_asset = assets[0]
 
@@ -215,6 +216,23 @@ class AssetArchiveCreateView(LoginRequiredMixin, View):
             msg = "Arquivo adicionado com sucesso."
 
         return JsonResponse({"message": msg, "status": status})
+
+
+class AssetArchiveDeleteView(LoginRequiredMixin, View):
+    login_url = "/login/"
+
+    def post(self, request, archive_id, slug):
+        obj = Archive.objects.get(pk=archive_id)
+        if obj.poster:
+            obj.poster.delete()
+        if obj.file:
+            obj.file.delete()
+
+        obj.delete()
+
+        return redirect(
+            reverse("management:asset-archive") + f"?slug={slug}"
+        )
 
 
 class AssetIncomeCreateView(LoginRequiredMixin, View):
@@ -344,21 +362,22 @@ class AssetFlowView(LoginRequiredMixin, View):
     login_url = "/login/"
 
     def get(self, request):
+        assets = Asset.objects.all()
         slug = request.GET.get("slug", None)
         message = request.GET.get("message", None)
 
         if slug:
-            selected_asset = Asset.objects.get(slug=slug)
+            asset = Asset.objects.get(slug=slug)
         else:
-            selected_asset = Asset.objects.get(pk=1)
+            asset = Asset.objects.get(pk=1)
 
-        incomes = Income.objects.filter(asset=selected_asset)
-        expenses = Expense.objects.filter(asset=selected_asset)
+        incomes = Income.objects.filter(asset=asset)
+        expenses = Expense.objects.filter(asset=asset)
         flow = list(chain(incomes, expenses))
         flow.sort(reverse=True, key=lambda x: x.date)
-        assets = Asset.objects.all()
+
         ctx = {
-            "selected_asset": selected_asset,
+            "selected_asset": asset,
             "assets": assets,
             "flow": flow,
             "message": message if message else None,
@@ -379,4 +398,6 @@ class AssetFlowDeleteView(LoginRequiredMixin, View):
         flow.delete()
 
         message = "A entrada / saída foi removida com sucesso."
-        return redirect(reverse("management:asset-flow") + f"?slug={slug}&message={message}")
+        return redirect(
+            reverse("management:asset-flow") + f"?slug={slug}&message={message}"
+        )

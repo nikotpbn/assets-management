@@ -5,11 +5,12 @@ from management.views import (
     AssetIncomeCreateView,
     AssetExpenseCreateView,
     AssetArchiveCreateView,
+    AssetArchiveDeleteView,
     AssetAnnualReportCreateView,
     MonthlyIncomeData,
     AnnualIncomeData,
     AssetFlowView,
-    AssetFlowDeleteView
+    AssetFlowDeleteView,
 )
 from django.urls import path
 
@@ -35,10 +36,17 @@ urlpatterns = [
         name="asset-archive",
     ),
     path(
-        "report/create/", AssetAnnualReportCreateView.as_view(), name="create-report"
+        "<slug:slug>/archive/delete/<int:archive_id>/",
+        AssetArchiveDeleteView.as_view(),
+        name="asset-archive-delete",
     ),
+    path("report/create/", AssetAnnualReportCreateView.as_view(), name="create-report"),
     path("monthly/income/", MonthlyIncomeData.as_view(), name="monthly-income"),
     path("annual/income/", AnnualIncomeData.as_view(), name="annual-income"),
     path("asset/flow/", AssetFlowView.as_view(), name="asset-flow"),
-    path("<slug:slug>/flow/delete/<int:flow_id>/<str:action>/", AssetFlowDeleteView.as_view(), name="delete-flow"),
+    path(
+        "<slug:slug>/flow/delete/<int:flow_id>/<str:action>/",
+        AssetFlowDeleteView.as_view(),
+        name="delete-flow",
+    ),
 ]

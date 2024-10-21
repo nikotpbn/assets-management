@@ -9,17 +9,16 @@
           {% csrf_token %}
           <select
             id="asset"
-            data-url="{% url 'management:asset' %}"
-            name="asset"
+            name="slug"
             class="form-select"
             aria-label="select"
             style="text-align: center"
           >
             {% for asset in assets %}
                 {% if selected_asset.id == asset.id %}
-                <option value="{{asset.id}}" selected>{{asset}}</option>
+                <option value="{{asset.slug}}" selected>{{asset}}</option>
                 {% else %}
-                <option value="{{asset.id}}">{{asset}}</option>
+                <option value="{{asset.slug}}">{{asset}}</option>
                 {% endif %} {% endfor %}
           </select>
         </form>
@@ -27,104 +26,139 @@
     </div>
   </div>
 
-  <div class="container px-4" style="display: flex; flex-flow: row wrap; justify-content: center; overflow: scroll; max-height: 600px;">
+  <div class="special-container">
     {% for archive in selected_asset.archives.all %}
-        {% if archive.file_type == 'image' %}
-        <div class="video-box">
-          <img
-            class="video-box-poster"
-            src="{{archive.file.url}}"
-            alt=""
-          >
-          <div
-          class="video-box-overlay image-overlay"
-          data-media-src="{{archive.file.url}}"
-          data-media-title="{{archive.title}}"
-          data-media-description="{{archive.description}}"
-          >
-          </div>
-        </div>
-        {% else %}
-        <div class="video-box">
-          <img
-            class="video-box-poster"
-            src="{{archive.poster.url}}"
-            alt=""
-          />
-          <div
-            class="video-box-overlay video-overlay"
-            data-media-src="{{archive.file.url}}"
-            data-media-title="{{archive.title}}"
-            data-media-description="{{archive.description}}"
-          >
+        <div class="video-box-wrapper">
+          <form
+          class="delete-form"
+          method="POST"
+          action="{% url 'management:asset-archive-delete' selected_asset.slug archive.id %}"
+        >
+          {%csrf_token%}
+          <button class="delete-button">
             <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="overlay--play-button"
-              width="32"
-              height="32"
-              fill="currentColor"
-              class="bi bi-play-btn-fill"
-              viewBox="0 0 16 16"
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            fill="currentColor"
+            class="bi bi-dash-circle-fill"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1z"
+            />
+          </svg>
+          </button>
+
+          </form>
+
+          {% if archive.file_type == 'image' %}
+          <div class="video-box">
+            <img
+              class="video-box-poster"
+              src="{{archive.file.url}}"
+              alt=""
             >
-              <path
-                d="M0 12V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2m6.79-6.907A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"
-              />
-            </svg>
+            <div
+            class="video-box-overlay"
+            data-archive-src="{{archive.file.url}}"
+            data-archive-type="{{archive.file_type}}"
+            >
+            </div>
           </div>
+          {% else %}
+          <div class="video-box">
+            <img
+              class="video-box-poster"
+              src="{{archive.poster.url}}"
+              alt=""
+            />
+            <div
+              class="video-box-overlay"
+              data-archive-src="{{archive.file.url}}"
+              data-archive-type="{{archive.file_type}}"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="overlay--play-button"
+                width="32"
+                height="32"
+                fill="currentColor"
+                class="bi bi-play-btn-fill"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M0 12V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2m6.79-6.907A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"
+                />
+              </svg>
+            </div>
+          </div>
+          {% endif %}
+
         </div>
-        {% endif %}
     {% endfor %}
   </div>
 </div>
 
 <script>
   const backdrop = document.querySelector(".backdrop");
-  const backdropVideo = document.querySelector('#modal-video');
-  const backdropImage = document.querySelector('#backdrop-image');
+
+  const asset = document.querySelector("#asset");
+  const assetForm = document.querySelector("#asset-form")
+
+  const modalVideo = document.querySelector(".modal-video");
+  const modalImage = document.querySelector(".modal-image");
+
+  const videoBoxOverlay = document.querySelectorAll(".video-box-overlay");
   const modalCloseButton = document.querySelector(".modal-close-button");
-  const imageOverlay = document.querySelector(".image-overlay");
-  const videoOverlay = document.querySelector(".video-overlay");
+  const deleteButton = document.querySelectorAll(".delete-button");
 
-  modalCloseButton.addEventListener("click", closeModalButtonHandler);
-  imageOverlay.addEventListener("click", displayImageModalHandler);
-  videoOverlay.addEventListener("click", displayVideoModalHandler);
+  asset.addEventListener("change", event  => {
+    assetForm.submit();
+  });
 
-  function closeModalButtonHandler() {
-    backdrop.style.display = "none";
-    backdropImage.src = "";
-    backdropVideo.src = "";
-    backdropVideo.style.display = 'none';
-    backdropImage.style.display = 'none';
-  }
-
-  function backdropHandler() {
-    if (backdrop.style.display === "none" || backdrop.style.display === "") {
-      backdrop.style.display = "flex";
-    } else {
-      backdrop.style.display = "none";
+  modalCloseButton.addEventListener("click", () => {
+    if (!modalVideo.paused) {
+      modalVideo.pause();
     }
+    backdrop.style.display = "none";
+    modalVideo.style.display = "none";
+    modalImage.style.display = "none";
+  });
+
+  videoBoxOverlay.forEach((element) => {
+    element.addEventListener("click", displayModal);
+  });
+
+  deleteButton.forEach((element) => {
+    element.addEventListener("click", deleteArchive);
+  });
+
+  async function displayModal() {
+    const fileSrc = this.dataset.archiveSrc;
+    const fileType = this.dataset.archiveType;
+
+    backdrop.style.display = "flex";
+    if (fileType === "image") {
+      modalImage.src = fileSrc;
+      modalImage.style.display = "block";
+    }
+
+    if (fileType === "video") {
+      modalVideo.src = fileSrc;
+      modalVideo.style.display = "block";
+    }
+    // modalVideo.src = this.dataset.videoSrc;
+    // backdrop.style.display = "flex";
+    // try {
+    //   // await modalVideo.play();
+    // } catch (error) {
+    //   console.log(error);
+    // }
   }
 
-  async function showVideo(src) {
-    backdropVideo.src = src;
-    backdropVideo.style.display = 'block';
-  }
-
-  function displayImageModalHandler (url, title, description) {
-    backdropHandler();
-    let mediaSrc = this.dataset.mediaSrc;
-    let mediaTitle = this.dataset.mediaTitle;
-    let mediaDescription = this.dataset.mediaDescription;
-    backdropImage.src = mediaSrc;
-
-  }
-
-  function displayVideoModalHandler(url, title, description) {
-    backdropHandler();
-    let mediaSrc = this.dataset.mediaSrc;
-    let mediaTitle = this.dataset.mediaTitle;
-    let mediaDescription = this.dataset.mediaDescription;
-    showVideo(mediaSrc);
+  function deleteArchive() {
+    console.log(this.dataset.url);
   }
 </script>
 {% endblock subcontent %}

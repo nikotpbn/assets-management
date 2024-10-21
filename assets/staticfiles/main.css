@@ -31,22 +31,6 @@
   }
 }
 
-#modal-video {
-  display: none;
-}
-
-.modal-backdrop {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.6);
-  z-index: 1;
-  padding: 5rem 0;
-}
-
 .backdrop {
   display: none;
   position: fixed;
@@ -63,15 +47,6 @@
 
 .backdrop-spinner {
   display: none;
-}
-
-#modal-video {
-  width: 100%;
-}
-
-#backdrop-image {
-  height: 100%;
-  object-fit: cover;
 }
 
 .custom-btn {

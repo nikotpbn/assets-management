@@ -174,19 +174,20 @@ class Archive(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        self.file_type = check_format(self.file.name)
+        if self.file:
+            self.file_type = check_format(self.file.name)
 
-        if self.file_type == "video":
-            frame = iio.imread(
-                self.file,
-                index=42,
-                plugin="pyav",
-            )
-            img = Image.fromarray(frame)
-            buffer = io.BytesIO()
-            img.save(buffer, format="JPEG")
-            pillow_image = ContentFile(buffer.getvalue(), f"{uuid.uuid4()}")
-            self.poster = pillow_image
+            if self.file_type == "video":
+                frame = iio.imread(
+                    self.file,
+                    index=42,
+                    plugin="pyav",
+                )
+                img = Image.fromarray(frame)
+                buffer = io.BytesIO()
+                img.save(buffer, format="JPEG")
+                pillow_image = ContentFile(buffer.getvalue(), f"{uuid.uuid4()}")
+                self.poster = pillow_image
 
         return super().save()
 

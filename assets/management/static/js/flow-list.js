@@ -15,7 +15,7 @@ const deleteModal = document.querySelector(".delete-modal");
 const deleteButtons = document.querySelectorAll(".delete-form-button");
 const modalBody = document.querySelector(".modal-body");
 const modalSubmitButton = document.querySelector(".modal-submit");
-const deleteForm = document.querySelector(".delete-form");
+const deleteForm = document.querySelector("#delete-form");
 
 const closeDeleteModalButton = document.querySelector(".delete-modal-close");
 const flowTable = document.querySelector(".flow-table");

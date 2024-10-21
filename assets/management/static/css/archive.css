@@ -1,14 +1,43 @@
-.file-backdrop {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  background: rgba(0, 0, 0, 0.7);
-  height: 100vh;
-  width: 100vw;
+.special-container {
+  display: flex;
+  flex-flow: row wrap;
   justify-content: center;
-  align-items: center;
-  z-index: 10;
+  padding: 5rem;
+  overflow: scroll;
+  max-height: 600px;
+}
+
+.custom-modal {
+  display: block;
+}
+
+.modal-video {
+  display: none;
+  width: 100%;
+}
+
+.modal-image {
+  display: none;
+  width: 100%;
+}
+
+.delete-form {
+  transition: 1s;
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.delete-button {
+  color: rgb(102, 0, 0);
+  background-color: transparent;
+  border: none;
+}
+
+.video-box-wrapper {
+  position: relative;
 }
 
 .video-box {
@@ -18,8 +47,13 @@
   width: 150px;
   border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 5px;
-  padding: 1px;
   margin: 1rem;
+}
+
+.video-box-wrapper:hover > .delete-form {
+  transition: 1s;
+  display: block;
+  opacity: 1;
 }
 
 .video-box-poster {
@@ -30,12 +64,13 @@
 
 .video-box-overlay {
   transition: 1s;
+  width: 100%;
   display: flex;
   flex-flow: row nowrap;
   justify-content: center;
   align-items: center;
   position: absolute;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.5);
   top: 0;
   bottom: 0;
   left: 0;
@@ -44,14 +79,14 @@
 }
 
 .video-box-overlay:hover,
-.video-box-overlay:hover .overlay--play-button {
+.video-box-overlay:hover .video-box-overlay__play-button {
   cursor: pointer;
   background-color: rgba(0, 0, 0, 0);
   opacity: 1;
   transition: 1s;
 }
 
-.overlay--play-button {
+.video-box-overlay__play-button {
   transition: 1s;
   color: white;
   opacity: 0.5;
@@ -68,10 +103,4 @@
 .modal-close-button:hover {
   cursor: pointer;
   opacity: 1;
-}
-
-.special-container {
-  display: flex;
-  flex-flow: row wrap;
-  padding: 5rem;
 }

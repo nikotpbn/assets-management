@@ -48,7 +48,7 @@
             <td class="{% if action|classname == 'Income' %}income{% else %}expense{% endif %}">{{action.value}}</td>
             <td>
               {% with flow=action|classname %}
-              <form class="delete-form" action="{% url 'management:delete-flow' selected_asset.slug action.id action|classname%}" method="POST">
+              <form id="delete-form" action="{% url 'management:delete-flow' selected_asset.slug action.id action|classname%}" method="POST">
                 {% csrf_token %}
                 <button
                   class="delete-form-button btn btn-outline-danger"
