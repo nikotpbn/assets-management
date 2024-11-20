@@ -113,7 +113,9 @@ class ManageAsset(LoginRequiredMixin, View):
 
     def get(self, request):
         assets = Asset.objects.all()
-        ctx = {"assets": assets}
+        today = datetime.datetime.now().strftime(f"%Y-%m-%d")
+        print(today)
+        ctx = {"assets": assets, "today": today}
         return render(request, "asset/index.html", ctx)
 
     def post(self, request):
@@ -230,9 +232,7 @@ class AssetArchiveDeleteView(LoginRequiredMixin, View):
 
         obj.delete()
 
-        return redirect(
-            reverse("management:asset-archive") + f"?slug={slug}"
-        )
+        return redirect(reverse("management:asset-archive") + f"?slug={slug}")
 
 
 class AssetIncomeCreateView(LoginRequiredMixin, View):
@@ -311,7 +311,6 @@ class AssetAnnualReportCreateView(LoginRequiredMixin, View):
         data = json.loads(request.body)
         year = data["year"]
         mode = data["mode"]
-        status = 500
         msg = "Algo de errado aconteceu"
 
         try:

@@ -204,15 +204,3 @@ const formatDate = (year, month, day) => {
   }
   return `${year}-${month}-${day}`;
 };
-
-window.addEventListener("load", async () => {
-  let timestamp = Date.now();
-  initialDate = new Date(timestamp);
-
-  currentYear = initialDate.getFullYear();
-  flowDateInputElement.value = formatDate(
-    initialDate.getFullYear(),
-    initialDate.getMonth(),
-    initialDate.getDate()
-  );
-});
