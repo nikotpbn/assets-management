@@ -53,7 +53,6 @@ const saveFlow = async () => {
 
     const data = await response.json();
     displayToastCustomMessage(data.message, response.status);
-
   } catch (error) {
     console.log(error.message);
   }
@@ -62,7 +61,7 @@ const saveFlow = async () => {
 modalFileInput.addEventListener("change", (event) => {
   const file = event.target.files[0];
   const [name, ext] = file.name.split(".");
-  modalFileLabel.innerHTML = name
+  modalFileLabel.innerHTML = name;
 });
 
 modalSaveButton.addEventListener("click", () => {
@@ -100,12 +99,12 @@ const getFormData = (flow) => {
   const value = flowValueInputElement.value;
 
   try {
-    let insertedDateYear = Number.parseInt(date.slice(0, 4));
     let insertedValue = Number.parseFloat(
       value.replace(".", "").replace(",", ".")
     );
 
     data.asset_id = asset.value;
+    data.date = date;
 
     if (flow === "entrada") {
       data.flow = "income";
@@ -113,12 +112,6 @@ const getFormData = (flow) => {
     } else {
       data.flow = "expense";
       url = expenseButtonElement.dataset.url;
-    }
-
-    if (insertedDateYear <= currentYear) {
-      data.date = date;
-    } else {
-      throw new Error("O ano não pode ser maior que o ano atual.");
     }
 
     if (insertedValue > 0) {
@@ -140,19 +133,6 @@ const getFormData = (flow) => {
     modalSaveButton.classList.add("btn-danger");
   }
   return data;
-};
-
-const displayModal = (data, flow) => {
-  let message = `Deseja mesmo criar uma ${flow} no valor de R$ ${data.value}`;
-  modalBodyText.innerHTML = message;
-  modalTitle.innerHTML = `Criar ${flow}`;
-
-  if (flow === "saida") {
-    modalBodyTextAreaInput.style.display = "block";
-  } else {
-    modalBodyTextAreaInput.style.display = "none";
-  }
-  new bootstrap.Modal(incomeExpenseModalElement).show();
 };
 
 incomeButtonElement.addEventListener("click", (event) => {
@@ -191,16 +171,19 @@ const moneyMask = (value) => {
   return value === "" ? "0,00" : result;
 };
 
+const displayModal = (data, flow) => {
+  let message = `Deseja mesmo criar uma ${flow} no valor de R$ ${data.value}`;
+  modalBodyText.innerHTML = message;
+  modalTitle.innerHTML = `Criar ${flow}`;
+
+  if (flow === "saida") {
+    modalBodyTextAreaInput.style.display = "block";
+  } else {
+    modalBodyTextAreaInput.style.display = "none";
+  }
+  new bootstrap.Modal(incomeExpenseModalElement).show();
+};
+
 flowValueInputElement.addEventListener("input", (event) => {
   flowValueInputElement.value = moneyMask(event.target.value);
 });
-
-const formatDate = (year, month, day) => {
-  if (month < 10) {
-    month = `0${month}`;
-  }
-  if (day < 10) {
-    day = `0${day}`;
-  }
-  return `${year}-${month}-${day}`;
-};

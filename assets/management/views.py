@@ -274,8 +274,10 @@ class AssetExpenseCreateView(LoginRequiredMixin, View):
         validated_data = {
             "value": decimal.Decimal(value),
             "date": datetime.date(int(year), int(month), int(day)),
+            "description": request.POST["description"],
             "asset": asset,
         }
+        print(validated_data)
         if document:
             validated_data.update({"document": document})
 
