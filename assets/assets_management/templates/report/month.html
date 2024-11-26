@@ -156,7 +156,7 @@
         <th>Valor</th>
         <th>Descrição</th>
         <th>Imóvel</th>
-        <th>Ver Documento</th>
+        <th>Documento</th>
       </tr>
     </thead>
 
@@ -167,7 +167,16 @@
         <td>R$ {{expense.value|floatformat:3|floatformat:"2g"}}</td>
         <td>{{expense.description}}</td>
         <td>{{expense.asset.name}}</td>
-        <td>{{expense.document}}</td>
+        {% if expense.document %}
+        <td>
+          <a href="/uploads/{{expense.document}}" target="_blank">
+            <i class="bi bi-cloud-download-fill"></i>
+          </a>
+        </td>
+        {% else %}
+        <td></td>
+        {% endif %}
+
       </tr>
       {% endfor %}
     </tbody>
@@ -188,7 +197,7 @@
         <th>Dia</th>
         <th>Valor</th>
         <th>Descrição</th>
-        <th>Ver Documento</th>
+        <th>Documento</th>
       </tr>
     </thead>
 
@@ -198,7 +207,15 @@
         <td>{{expense.date|date:"d"}}</td>
         <td>R$ {{expense.value|floatformat:3|floatformat:"2g"}}</td>
         <td>{{expense.description}}</td>
-        <td>{{expense.document}}</td>
+        {% if expense.document %}
+        <td>
+          <a href="/uploads/{{expense.document}}" target="_blank">
+            <i class="bi bi-cloud-download-fill"></i>
+          </a>
+        </td>
+        {% else %}
+        <td></td>
+        {% endif %}
       </tr>
       {% endfor %}
     </tbody>
